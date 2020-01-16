@@ -10,9 +10,12 @@ require (
 	github.com/agrison/go-tablib v0.0.0-20160310143025-4930582c22ee // indirect
 	github.com/agrison/mxj v0.0.0-20160310142625-1269f8afb3b4 // indirect
 	github.com/bndr/gotabulate v1.1.2 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
+	github.com/jinzhu/inflection v1.0.0
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.1.13
 	github.com/labstack/gommon v0.3.0
 	github.com/mattn/go-sqlite3 v2.0.2+incompatible

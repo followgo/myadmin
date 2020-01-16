@@ -4,6 +4,7 @@
       <w>cacher</w>
       <w>funcs</w>
       <w>middlewares</w>
+      <w>nginx</w>
       <w>sqlite</w>
     </words>
   </dictionary>
