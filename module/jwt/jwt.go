@@ -4,13 +4,13 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 
 	. "github.com/followgo/myadmin/config"
 )
 
 // GenerateTokenString 生成 token 字符串
-func GenerateTokenString(claims map[string]interface{}, lifetime time.Duration) (string, error) {
+func GenerateTokenString(claims map[string]interface{}) (string, error) {
 	if claims == nil {
 		claims = make(map[string]interface{})
 	}
@@ -23,7 +23,10 @@ func GenerateTokenString(claims map[string]interface{}, lifetime time.Duration) 
 	for k, v := range claims {
 		mapClaims[k] = v
 	}
-	claims["exp"] = time.Now().Add(lifetime).Unix()
+	now := time.Now()
+	claims["exp"] = now.Add(10 * time.Minute).Unix()
+	claims["nbf"] = now.Add(-1 * time.Second).Unix()
+	claims["iat"] = now.Unix()
 
 	// Generate encoded token
 	return myToken.SignedString([]byte( C.HTTP.TokenSigningKey))

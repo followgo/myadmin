@@ -39,3 +39,8 @@ func InsertUsers(users []User) (int64, error) {
 	}
 	return Orm.Insert(users)
 }
+
+// Verify 校验用户名和密码
+func (u *User) Verify() bool {
+
+}

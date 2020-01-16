@@ -9,8 +9,13 @@ import (
 
 func RegisterAPIv1(e *echo.Echo) {
 	v1 := e.Group("/v1")
-	registerAPI(v1, "/hello", new(apiv1.Hello), nil, nil)
 
+	// 不需要登陆
+	v1.POST("/login", new(apiv1.Login).LoginByLocal)
+
+	// 需要 token 才能访问
 	mw.UseJWT(v1)
-	registerAPI(v1, "/hello1", new(apiv1.Hello), nil, nil)
+	v1.POST("/login", new(apiv1.Login).Logout)
+	v1.POST("/login", new(apiv1.Login).RefreshToken)
+	registerAPI(v1, "/hello", new(apiv1.Hello), nil, nil)
 }
