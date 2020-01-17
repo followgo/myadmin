@@ -31,20 +31,19 @@ func (api *Login) LoginByLocal(c echo.Context) error {
 
 	// 检验用户名和密码
 	user := model.User{Username: api.from1.Username, Email: api.from1.Email, Password: api.from1.Password}
-	if !user.Verify() {
+	if has, err := user.GetByUsernamePassword(); err != nil {
+		return echo.ErrInternalServerError
+	} else if !has {
 		return echo.ErrUnauthorized
 	}
 
 	// 添加到在线用户列表
-	if err := onlineuser.AddUser(onlineuser.User{
-		UUID:      user.UUID,
+	onlineuser.AddUser(user.UUID, onlineuser.User{
 		Username:  user.Username,
 		Roles:     user.Roles,
 		RemoteIP:  c.Request().RemoteAddr[:strings.LastIndexByte(c.Request().RemoteAddr, ':') ],
 		UserAgent: c.Request().UserAgent(),
-	}); err != nil {
-		return &echo.HTTPError{Code: http.StatusUnauthorized, Message: err.Error()}
-	}
+	})
 
 	// 创建 token 并发给用户
 	token, err := jwt.GenerateTokenString(map[string]interface{}{"UUID": user.UUID})
