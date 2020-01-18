@@ -16,3 +16,7 @@
 *.s3db
 log/
 config/config.toml
+.idea/httpRequests/
+.idea/dataSources/
+.idea/dataSources.local.xml
+.idea/dataSources.xml

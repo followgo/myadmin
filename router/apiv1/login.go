@@ -23,17 +23,25 @@ type Login struct {
 	from2 struct{}
 }
 
+// LoginByLDAP 通过LDAP服务器登入系统
+func (api *Login) LoginByLDAP(c echo.Context) error {
+	return echo.ErrNotFound
+}
+
 // LoginByLocal 使用本地用户名和密码登陆登入系统
 func (api *Login) LoginByLocal(c echo.Context) error {
-	if err := c.Bind(api.from1); err != nil {
+	if err := c.Bind(&api.from1); err != nil {
 		return echo.ErrBadRequest
 	}
 
+	remoteIP := c.Request().RemoteAddr[:strings.LastIndexByte(c.Request().RemoteAddr, ':')]
+	userAgent := c.Request().UserAgent()
+
 	// 检验用户名和密码
-	user := model.User{Username: api.from1.Username, Email: api.from1.Email, Password: api.from1.Password}
-	if has, err := user.GetByUsernamePassword(); err != nil {
+	user := model.User{Username: api.from1.Username, Email: api.from1.Email, Password: api.from1.Password, LastLoginFrom: remoteIP}
+	if ok, err := user.Validate(); err != nil {
 		return echo.ErrInternalServerError
-	} else if !has {
+	} else if !ok {
 		return echo.ErrUnauthorized
 	}
 
@@ -41,12 +49,12 @@ func (api *Login) LoginByLocal(c echo.Context) error {
 	onlineuser.AddUser(user.UUID, onlineuser.User{
 		Username:  user.Username,
 		Roles:     user.Roles,
-		RemoteIP:  c.Request().RemoteAddr[:strings.LastIndexByte(c.Request().RemoteAddr, ':') ],
-		UserAgent: c.Request().UserAgent(),
+		RemoteIP:  remoteIP,
+		UserAgent: userAgent,
 	})
 
 	// 创建 token 并发给用户
-	token, err := jwt.GenerateTokenString(map[string]interface{}{"UUID": user.UUID})
+	token, err := jwt.GenerateTokenString(map[string]interface{}{"uuid": user.UUID, "roles": user.Roles})
 	if err != nil {
 		return echo.ErrInternalServerError
 	}
@@ -57,7 +65,7 @@ func (api *Login) LoginByLocal(c echo.Context) error {
 // Logout 登出系统
 func (api *Login) Logout(c echo.Context) error {
 	claims := jwt.GetClaimsFromToken(c)
-	onlineuser.RemoteUser(claims["UUID"].(string))
+	onlineuser.RemoteUser(claims["uuid"].(string))
 	return c.NoContent(http.StatusCreated)
 }
 

@@ -33,8 +33,28 @@ func main() {
 	}
 	logrus.Infoln("已经同步数据模型")
 
+	// 尝试插入初始化数据
+	tryInsertFactoryDefaultData()
+
 	// 初始化并启动HTTP服务
 	startHTTPServer()
+}
+
+// tryInsertFactoryDefaultData 尝试插入初始化数据
+func tryInsertFactoryDefaultData() {
+	// 插入默认的超级用户
+	var u = new(model.User)
+	if n, err := u.Count(nil); err != nil {
+		logrus.WithError(err).Fatalln("获取用户数量")
+	} else if n == 0 {
+		u = &model.User{Username: "admin", Email: "admin@local", Password: "admin", Roles: []string{"viewer", "editor", "admin"}, Enabled: true}
+		if ok, err := u.Insert(); err != nil {
+			logrus.WithError(err).Fatalln("插入默认的超级用户")
+		} else if !ok {
+			logrus.Fatalln("失败插入默认的超级用户")
+		}
+	}
+
 }
 
 // initLogger 初始化日志系统

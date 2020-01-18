@@ -29,7 +29,7 @@ func GenerateTokenString(claims map[string]interface{}) (string, error) {
 	claims["iat"] = now.Unix()
 
 	// Generate encoded token
-	return myToken.SignedString([]byte( C.HTTP.TokenSigningKey))
+	return myToken.SignedString([]byte(TokenSigningKey))
 }
 
 // GetClaimsFromToken 从上下文中提取 Claims

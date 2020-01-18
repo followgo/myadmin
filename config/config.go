@@ -12,7 +12,6 @@ var C = &config{
 		Debug:           true,
 		ListenAddr:      "127.0.0.1:1213",
 		AccessFile:      "./log/access.log",
-		TokenSigningKey: random.String(24),
 		AllowOrigins:    []string{"*"},
 	},
 	Logger: loggerConfig{
@@ -55,9 +54,6 @@ type httpConfig struct {
 
 	// AccessFile 会话记录文件
 	AccessFile string
-
-	// TokenSigningKey 用于 token 签名
-	TokenSigningKey string
 
 	// AllowOrigins 允许的跨域
 	AllowOrigins []string

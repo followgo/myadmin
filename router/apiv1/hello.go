@@ -13,8 +13,8 @@ func (api *Hello) Get(c echo.Context) error {
 	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
 	c.Response().WriteHeader(http.StatusOK)
 	return json.NewEncoder(c.Response()).Encode(echo.Map{
-		"UUID": c.Param("uuid"),
-		"TEXT": "Hello World",
+		"uuid": c.Param("uuid"),
+		"text": "Hello World",
 	})
 }
 

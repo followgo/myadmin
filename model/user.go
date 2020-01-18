@@ -4,12 +4,11 @@ import (
 	"encoding/hex"
 	"time"
 
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/blake2b"
 
 	. "github.com/followgo/myadmin/config"
 	. "github.com/followgo/myadmin/module/orm"
-
-	uuid "github.com/satori/go.uuid"
 )
 
 // User 管理员用户信息
@@ -21,25 +20,18 @@ type User struct {
 	Roles         []string
 	Enabled       bool
 	LastLoginFrom string
+	LastLoginAt   time.Time
+	LoginCount    uint
 	Created       time.Time `xorm:"created"`
 	Updated       time.Time `xorm:"updated"`
-	Version       int       `xorm:"version"`
 }
 
 // TableName 定义数据库表名
 func (u *User) TableName() string { return "users" }
 
-// GetByUUID 根据UUID获取一条记录
-func (u *User) GetByUUID() (has bool, err error) {
+// Get 根据UUID获取一条记录
+func (u *User) Get() (has bool, err error) {
 	has, err = Orm.Where("uuid=?", u.UUID).Get(u)
-	u.coverPwd()
-	return
-}
-
-// GetByUUID 根据 用户名或邮箱 和 密码 获取一条记录
-func (u *User) GetByUsernamePassword() (has bool, err error) {
-	u.hashPwd()
-	has, err = Orm.Where("(username=? OR email) AND password", u.UUID, u.Email, u.Password).Get(u)
 	u.coverPwd()
 	return
 }
@@ -71,14 +63,38 @@ func (u *User) Insert() (ok bool, err error) {
 	u.UUID = uuid.NewV1().String()
 	n, err := Orm.InsertOne(u)
 	u.coverPwd()
-	return  n != 0, err
+	return n != 0, err
 }
 
 // Update 更新记录
 func (u *User) Update(filter *UpdateFilter) (ok bool, err error) {
+	if u.Password != "" {
+		u.hashPwd()
+	}
 	s := AttachUpdateFilter(Orm, filter)
 	n, err := s.Update(u)
+	u.coverPwd()
 	return n != 0, err
+}
+
+// Validate 验证用户
+func (u *User) Validate() (ok bool, err error) {
+	u.hashPwd()
+	_user := new(User)
+	ok, err = Orm.Where("(username=? OR email=?) AND password=?", u.Username, u.Email, u.Password).Get(_user)
+	u.coverPwd()
+
+	if err != nil {
+		return false, err
+	}
+	if !ok {
+		return false, nil
+	}
+
+	u.LastLoginAt = time.Now()
+	u.LoginCount = _user.LoginCount + 1
+	_, _ = Orm.NoAutoTime().Cols("last_login_from", "last_login_at", "login_count").Update(u)
+	return true, nil
 }
 
 // coverPwd 掩盖密码
