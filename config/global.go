@@ -5,8 +5,14 @@ import (
 )
 
 const (
-	// TokenContextKey 将 token 转存到 echo 的上下文对象
-	TokenContextKey = "x-token"
+	// TokenContextKey 将 Token 转存到 echo 的上下文对象
+	TokenContextKey = "X-Token"
+
+	// TokenAuthScheme Token字符串的前缀
+	TokenAuthScheme = "eyJhbGciOi"
+
+	// TokenLookup token请求的携带方式
+	TokenLookup = "header:JWT-Token-X"
 )
 
 var (

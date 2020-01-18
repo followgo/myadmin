@@ -15,21 +15,19 @@ func GenerateTokenString(claims map[string]interface{}) (string, error) {
 		claims = make(map[string]interface{})
 	}
 
-	// Create token
-	myToken := jwt.New(jwt.SigningMethodHS256)
-
 	// Set claims
-	mapClaims := myToken.Claims.(jwt.MapClaims)
-	for k, v := range claims {
-		mapClaims[k] = v
-	}
+	mapClaims := jwt.MapClaims(claims)
 	now := time.Now()
-	claims["exp"] = now.Add(10 * time.Minute).Unix()
-	claims["nbf"] = now.Add(-1 * time.Second).Unix()
-	claims["iat"] = now.Unix()
+	mapClaims["exp"] = now.Add(30 * time.Minute).Unix()
+	mapClaims["nbf"] = now.Add(-1 * time.Second).Unix()
+	mapClaims["iat"] = now.Unix()
+
+	// Create token
+	myToken := jwt.NewWithClaims(jwt.SigningMethodHS256, mapClaims)
 
 	// Generate encoded token
-	return myToken.SignedString([]byte(TokenSigningKey))
+	tokenStr, err := myToken.SignedString([]byte(TokenSigningKey))
+	return TokenAuthScheme + " " + tokenStr, err
 }
 
 // GetClaimsFromToken 从上下文中提取 Claims

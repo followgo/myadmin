@@ -1,7 +1,6 @@
 package apiv1
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -10,9 +9,7 @@ import (
 type Hello struct{}
 
 func (api *Hello) Get(c echo.Context) error {
-	c.Response().Header().Set(echo.HeaderContentType, echo.MIMEApplicationJSONCharsetUTF8)
-	c.Response().WriteHeader(http.StatusOK)
-	return json.NewEncoder(c.Response()).Encode(echo.Map{
+	return c.JSON( http.StatusOK, echo.Map{
 		"uuid": c.Param("uuid"),
 		"text": "Hello World",
 	})
