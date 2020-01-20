@@ -16,43 +16,88 @@ import (
 )
 
 var (
-	// Orm 引擎接口
-	Orm xorm.EngineInterface
+	// engine Orm 引擎接口
+	engine xorm.EngineInterface
 )
 
-// InitOrm 初始化ORM
-func InitOrm() (err error) {
-	Orm, err = xorm.NewEngine(C.Orm.DriverName, C.Orm.DriverUri)
+// NewSession 创建session，并设置声明
+func NewSession(filter *Filter) (s *xorm.Session) {
+	s = engine.NewSession()
+
+	if filter == nil {
+		return s
+	}
+
+	if filter.Cols != nil && len(filter.Cols) > 0 {
+		s = s.Cols(filter.Cols...)
+	} else {
+		s = s.AllCols()
+	}
+
+	if filter.OmitCols != nil && len(filter.OmitCols) > 0 {
+		s = s.Omit(filter.OmitCols...)
+	}
+
+	if filter.AscCols != nil && len(filter.AscCols) > 0 {
+		s = s.Asc(filter.AscCols...)
+	}
+
+	if filter.DescCols != nil && len(filter.DescCols) > 0 {
+		s = s.Desc(filter.DescCols...)
+	}
+
+	if filter.Query != "" {
+		if filter.QueryArgs != nil && len(filter.QueryArgs) > 0 {
+			s = s.Where(filter.Query, filter.QueryArgs...)
+		} else {
+			s = s.Where(filter.Query)
+		}
+	}
+
+	if filter.GroupByKeys != "" {
+		s = s.GroupBy(filter.GroupByKeys)
+	}
+
+	if filter.Limit[0] != 0 {
+		s = s.Limit(filter.Limit[0], filter.Limit[1])
+	}
+
+	return s
+}
+
+// InitOrmAndSyncModels 初始化ORM，并同步数据模型
+func InitOrmAndSyncModels(models ...interface{}) (err error) {
+	engine, err = xorm.NewEngine(Cfg.Orm.DriverName, Cfg.Orm.DriverUri)
 	if err != nil {
 		return errors.Wrap(err, "创建 xorm 实例")
 	}
 
 	// 配置日志记录器
-	logWriter := mylogrus.NewWriterWithSizeRotate(C.Orm.LogFile, 100, 100, 30)
-	Orm.SetLogger(&xorm.SimpleLogger{
+	logWriter := mylogrus.NewWriterWithSizeRotate(Cfg.Orm.LogFile, 100, 100, 30)
+	engine.SetLogger(&xorm.SimpleLogger{
 		DEBUG: log.New(logWriter, "[D] ", xorm.DEFAULT_LOG_FLAG),
 		ERR:   log.New(logWriter, "[E] ", xorm.DEFAULT_LOG_FLAG),
 		INFO:  log.New(logWriter, "[I] ", xorm.DEFAULT_LOG_FLAG),
 		WARN:  log.New(logWriter, "[W] ", xorm.DEFAULT_LOG_FLAG),
 	})
-	Orm.ShowExecTime(C.Orm.Debug)
-	Orm.ShowSQL(C.Orm.Debug)
-	switch strings.ToLower(C.Orm.LogLevel) {
+	engine.ShowExecTime(Cfg.Orm.Debug)
+	engine.ShowSQL(Cfg.Orm.Debug)
+	switch strings.ToLower(Cfg.Orm.LogLevel) {
 	case "warn", "warning":
-		Orm.SetLogLevel(core.LOG_WARNING)
+		engine.SetLogLevel(core.LOG_WARNING)
 	case "err", "error":
-		Orm.SetLogLevel(core.LOG_ERR)
+		engine.SetLogLevel(core.LOG_ERR)
 	case "info":
-		Orm.SetLogLevel(core.LOG_INFO)
+		engine.SetLogLevel(core.LOG_INFO)
 	default:
-		Orm.SetLogLevel(core.LOG_DEBUG)
+		engine.SetLogLevel(core.LOG_DEBUG)
 	}
 
-	if C.Orm.UseLRUCache {
+	if Cfg.Orm.UseLRUCache {
 		enableLRUCacher()
 	}
 
-	return nil
+	return engine.Sync2(models...)
 }
 
 // enableLRUCacher 启用缓存
@@ -60,5 +105,5 @@ func InitOrm() (err error) {
 // 避免使用 Exec 执行写操作，如果执行了要清理缓存，如：engine.ClearCache(new(User))
 func enableLRUCacher() {
 	cacher := xorm.NewLRUCacher(xorm.NewMemoryStore(), 1000)
-	Orm.SetDefaultCacher(cacher)
+	engine.SetDefaultCacher(cacher)
 }

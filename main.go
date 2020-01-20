@@ -20,18 +20,10 @@ func main() {
 	initLogger()
 
 	// 初始化 ORM
-	if err := orm.InitOrm(); err != nil {
-		logrus.WithError(err).Fatalln("初始化ORM")
+	if err := orm.InitOrmAndSyncModels(new(model.User)); err != nil {
+		logrus.WithError(err).Fatalln("初始化ORM并同步数据模型")
 	}
-	logrus.Infoln("已经初始化ORM")
-
-	// 同步数据模型结构体到数据库表
-	if err := orm.Orm.Sync2(
-		new(model.User),
-	); err != nil {
-		logrus.WithError(err).Fatalln("同步数据模型")
-	}
-	logrus.Infoln("已经同步数据模型")
+	logrus.Infoln("已经初始化ORM和同步数据模型")
 
 	// 尝试插入初始化数据
 	tryInsertFactoryDefaultData()
@@ -60,12 +52,12 @@ func tryInsertFactoryDefaultData() {
 // initLogger 初始化日志系统
 func initLogger() {
 	logOpt := mylogrus.DefaultOption
-	logOpt.BaseFile = C.Logger.File
-	logOpt.OverWrite = C.Logger.OverWrite
+	logOpt.BaseFile = Cfg.Logger.File
+	logOpt.OverWrite = Cfg.Logger.OverWrite
 	logOpt.OutputConsole = false
 
 	var err error
-	logOpt.Level, err = logrus.ParseLevel(C.Logger.Level)
+	logOpt.Level, err = logrus.ParseLevel(Cfg.Logger.Level)
 	if err != nil {
 		logrus.WithError(err).Warnln("解析日志等级")
 		logOpt.Level = logrus.InfoLevel

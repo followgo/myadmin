@@ -20,7 +20,7 @@ func startHTTPServer() {
 	e := echo.New()
 	e.DisableHTTP2 = true // 禁用http2，前端一般使用 nginx
 
-	e.Debug = C.HTTP.Debug
+	e.Debug = Cfg.HTTP.Debug
 	e.HideBanner = !e.Debug // 不打印banner
 
 	// 添加全局中间件
@@ -32,7 +32,7 @@ func startHTTPServer() {
 	// 启动服务
 	go func() {
 		logrus.Infoln("HTTP服务启动...")
-		if err := e.Start(C.HTTP.ListenAddr); err != nil {
+		if err := e.Start(Cfg.HTTP.ListenAddr); err != nil {
 			if !errors.Is(err, http.ErrServerClosed) {
 				logrus.WithError(err).Fatalln("HTTP服务意外停止")
 			}

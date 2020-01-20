@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/blake2b"
 
 	. "github.com/followgo/myadmin/config"
-	. "github.com/followgo/myadmin/module/orm"
+	"github.com/followgo/myadmin/module/orm"
 )
 
 // User 管理员用户信息
@@ -31,14 +31,14 @@ func (u *User) TableName() string { return "users" }
 
 // Get 根据UUID获取一条记录
 func (u *User) Get() (has bool, err error) {
-	has, err = Orm.Where("uuid=?", u.UUID).Get(u)
+	has, err = orm.NewSession(&orm.Filter{Query: "uuid=?", QueryArgs: []interface{}{u.UUID}}).Get(u)
 	u.coverPwd()
 	return
 }
 
 // Find 查询多条数据
-func (u *User) Find(filter *FindFilter) (users []User, err error) {
-	s := AttachFindFilter(Orm, filter)
+func (u *User) Find(filter *orm.Filter) (users []User, err error) {
+	s := orm.NewSession(filter)
 
 	users = make([]User, 100)
 	if err := s.Find(&users); err != nil {
@@ -52,8 +52,8 @@ func (u *User) Find(filter *FindFilter) (users []User, err error) {
 }
 
 // Count 统计数量
-func (u *User) Count(filter *FindFilter) (n int64, err error) {
-	s := AttachFindFilter(Orm, filter)
+func (u *User) Count(filter *orm.Filter) (n int64, err error) {
+	s := orm.NewSession(filter)
 	return s.Count(new(User))
 }
 
@@ -61,19 +61,25 @@ func (u *User) Count(filter *FindFilter) (n int64, err error) {
 func (u *User) Insert() (ok bool, err error) {
 	u.hashPwd()
 	u.UUID = uuid.NewV1().String()
-	n, err := Orm.InsertOne(u)
+	n, err := orm.NewSession(nil).InsertOne(u)
 	u.coverPwd()
 	return n != 0, err
 }
 
 // Update 更新记录
-func (u *User) Update(filter *UpdateFilter) (ok bool, err error) {
+func (u *User) Update(cols, omitCols []string) (n int64, err error) {
 	if u.Password != "" {
 		u.hashPwd()
 	}
-	s := AttachUpdateFilter(Orm, filter)
-	n, err := s.Update(u)
+
+	n, err = orm.NewSession(&orm.Filter{Cols: cols, OmitCols: omitCols, Query: "uuid=?", QueryArgs: []interface{}{u.UUID}}).Update(u)
 	u.coverPwd()
+	return n, err
+}
+
+// Del 根据uuid删除一条记录
+func (u *User) Del() (ok bool, err error) {
+	n, err := orm.NewSession(&orm.Filter{Query: "uuid=?", QueryArgs: []interface{}{u.UUID}}).Delete(new(User))
 	return n != 0, err
 }
 
@@ -81,7 +87,7 @@ func (u *User) Update(filter *UpdateFilter) (ok bool, err error) {
 func (u *User) Validate() (ok bool, err error) {
 	u.hashPwd()
 	_user := new(User)
-	ok, err = Orm.Where("(username=? OR email=?) AND password=?", u.Username, u.Email, u.Password).Get(_user)
+	ok, err = orm.NewSession(&orm.Filter{Query: "(username=? OR email=?) AND password=?", QueryArgs: []interface{}{u.Username, u.Email, u.Password}}).Get(_user)
 	u.coverPwd()
 
 	if err != nil {
@@ -93,7 +99,7 @@ func (u *User) Validate() (ok bool, err error) {
 
 	u.LastLoginAt = time.Now()
 	u.LoginCount = _user.LoginCount + 1
-	_, _ = Orm.NoAutoTime().Cols("last_login_from", "last_login_at", "login_count").Update(u)
+	_, _ = orm.NewSession(&orm.Filter{Cols: []string{"last_login_from", "last_login_at", "login_count"}}).NoAutoTime().Update(u)
 	return true, nil
 }
 
@@ -104,7 +110,7 @@ func (u *User) coverPwd() {
 
 // hashPwd 哈希密码
 func (u *User) hashPwd() {
-	h, _ := blake2b.New384([]byte(C.SecuritySalt))
+	h, _ := blake2b.New384([]byte(Cfg.SecuritySalt))
 	h.Write([]byte("fO1HX6qlkNA7bXk3DM1SDp4L"))
 	h.Write([]byte(u.Password))
 	u.Password = hex.EncodeToString(h.Sum(nil))

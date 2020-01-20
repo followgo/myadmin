@@ -14,6 +14,6 @@ func UseAccessLogger(r echoRouter) {
 			`"host":"${host}","method":"${method}","uri":"${uri}","user_agent":"${user_agent}",` +
 			`"status":${status},"error":"${error}","latency":${latency},"latency_human":"${latency_human}"` +
 			`,"bytes_in":${bytes_in},"bytes_out":${bytes_out}}` + "\n",
-		Output: mylogrus.NewWriterWithSizeRotate(C.HTTP.AccessFile, 100, 100, 30),
+		Output: mylogrus.NewWriterWithSizeRotate(Cfg.HTTP.AccessFile, 100, 100, 30),
 	}))
 }

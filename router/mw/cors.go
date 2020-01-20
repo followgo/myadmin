@@ -11,7 +11,7 @@ import (
 // UseCORS 允许跨域访问
 func UseCORS(r echoRouter) {
 	r.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: C.HTTP.AllowOrigins,
+		AllowOrigins: Cfg.HTTP.AllowOrigins,
 		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
 		MaxAge:       3600,
 	}))

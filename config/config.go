@@ -4,15 +4,15 @@ import (
 	"github.com/followgo/myadmin/util/random"
 )
 
-// C 存储配置
-var C = &config{
+// Cfg 存储配置
+var Cfg = &config{
 	SecuritySalt: random.String(24),
 
 	HTTP: httpConfig{
-		Debug:           true,
-		ListenAddr:      "127.0.0.1:1213",
-		AccessFile:      "./log/access.log",
-		AllowOrigins:    []string{"*"},
+		Debug:        true,
+		ListenAddr:   "127.0.0.1:1213",
+		AccessFile:   "./log/access.log",
+		AllowOrigins: []string{"*"},
 	},
 	Logger: loggerConfig{
 		Level:     "INFO",

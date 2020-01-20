@@ -11,6 +11,7 @@ import (
 	"github.com/followgo/myadmin/module/onlineuser"
 )
 
+// Login 登入系统/注销登陆
 type Login struct {
 	// from1: 使用本地用户名和密码登陆系统
 	from1 struct {
@@ -31,7 +32,7 @@ func (api *Login) LoginByLDAP(c echo.Context) error {
 // LoginByLocal 使用本地用户名和密码登陆登入系统
 func (api *Login) LoginByLocal(c echo.Context) error {
 	if err := c.Bind(&api.from1); err != nil {
-		return echo.ErrBadRequest
+		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "无效或过期的token", Internal: err}
 	}
 
 	remoteIP := c.Request().RemoteAddr[:strings.LastIndexByte(c.Request().RemoteAddr, ':')]
@@ -40,9 +41,9 @@ func (api *Login) LoginByLocal(c echo.Context) error {
 	// 检验用户名和密码
 	user := model.User{Username: api.from1.Username, Email: api.from1.Email, Password: api.from1.Password, LastLoginFrom: remoteIP}
 	if ok, err := user.Validate(); err != nil {
-		return echo.ErrInternalServerError
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读数据出错", Internal: err}
 	} else if !ok {
-		return echo.ErrUnauthorized
+		return &echo.HTTPError{Code: http.StatusUnauthorized, Message: "用户名或密码不正确"}
 	}
 
 	// 添加到在线用户列表
@@ -56,10 +57,10 @@ func (api *Login) LoginByLocal(c echo.Context) error {
 	// 创建 token 并发给用户
 	token, err := jwt.GenerateTokenString(map[string]interface{}{"uuid": user.UUID, "roles": user.Roles})
 	if err != nil {
-		return echo.ErrInternalServerError
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "创建Token发生错误", Internal: err}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"token": token})
+	return c.JSON(http.StatusOK, echo.Map{"token": token, "uuid": user.UUID})
 }
 
 // Logout 登出系统
@@ -75,7 +76,7 @@ func (api *Login) RefreshToken(c echo.Context) error {
 
 	tokenStr, err := jwt.GenerateTokenString(claims)
 	if err != nil {
-		return echo.ErrInternalServerError
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "创建Token发生错误", Internal: err}
 	}
 
 	onlineuser.RefreshUser(claims["uuid"].(string))

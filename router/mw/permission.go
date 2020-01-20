@@ -27,11 +27,7 @@ func UsePermission(r echoRouter) {
 			user := onlineuser.GetUser(claims["uuid"].(string))
 
 			if user.Username == "" {
-				return &echo.HTTPError{
-					Code:     http.StatusUnauthorized,
-					Message:  "unknown username",
-					Internal: nil,
-				}
+				return &echo.HTTPError{Code: http.StatusUnauthorized, Message: "unknown username", Internal: nil}
 			}
 
 			return next(c)
