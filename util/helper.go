@@ -1,8 +1,13 @@
 package util
 
 import (
+	"encoding/hex"
+	"io"
 	"os"
 	"reflect"
+	"strings"
+
+	"golang.org/x/crypto/blake2b"
 
 	"github.com/followgo/myadmin/util/errors"
 )
@@ -66,4 +71,34 @@ func HasDir(file string) (bool, error) {
 	}
 
 	return fi.IsDir(), nil
+}
+
+// Hash 哈希
+func Hash(src io.Reader, salt []byte) string {
+	h, _ := blake2b.New256(salt)
+	h.Write([]byte("fO1HX6qlkNA7bXk3DM1SDp4L"))
+	_, _ = io.Copy(h, src)
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+// HasStringSlice 判断字符串切片中是否包含某个字符串，带匹配大小写开关
+func HasStringSlice(s string, ss []string, matchCase bool) bool {
+	if ss == nil || len(ss) == 0 {
+		return false
+	}
+
+	if matchCase {
+		s = strings.ToLower(s)
+	}
+
+	for _, v := range ss {
+		if matchCase {
+			v = strings.ToLower(v)
+		}
+
+		if v == s {
+			return true
+		}
+	}
+	return false
 }

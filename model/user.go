@@ -1,14 +1,14 @@
 package model
 
 import (
-	"encoding/hex"
+	"strings"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/crypto/blake2b"
 
 	. "github.com/followgo/myadmin/config"
 	"github.com/followgo/myadmin/module/orm"
+	"github.com/followgo/myadmin/util"
 )
 
 // User 管理员用户信息
@@ -29,9 +29,9 @@ type User struct {
 // TableName 定义数据库表名
 func (u *User) TableName() string { return "users" }
 
-// Get 根据UUID获取一条记录
+// Get 根据非 nil 字段获取一条记录
 func (u *User) Get() (has bool, err error) {
-	has, err = orm.NewSession(&orm.Filter{Query: "uuid=?", QueryArgs: []interface{}{u.UUID}}).Get(u)
+	has, err = orm.NewSession(nil).Get(u)
 	u.coverPwd()
 	return
 }
@@ -72,7 +72,14 @@ func (u *User) Update(cols, omitCols []string) (n int64, err error) {
 		u.hashPwd()
 	}
 
-	n, err = orm.NewSession(&orm.Filter{Cols: cols, OmitCols: omitCols, Query: "uuid=?", QueryArgs: []interface{}{u.UUID}}).Update(u)
+	n, err = orm.NewSession(&orm.Filter{
+		Cols:          cols,
+		OmitCols:      omitCols,
+		Query:         "uuid=?",
+		QueryArgs:     []interface{}{u.UUID},
+		UpdateAllCols: cols == nil || len(cols) == 0,
+	}).Update(u)
+
 	u.coverPwd()
 	return n, err
 }
@@ -104,14 +111,9 @@ func (u *User) Validate() (ok bool, err error) {
 }
 
 // coverPwd 掩盖密码
-func (u *User) coverPwd() {
-	u.Password = "#########"
-}
+func (u *User) coverPwd() { u.Password = "#########" }
 
 // hashPwd 哈希密码
 func (u *User) hashPwd() {
-	h, _ := blake2b.New384([]byte(Cfg.SecuritySalt))
-	h.Write([]byte("fO1HX6qlkNA7bXk3DM1SDp4L"))
-	h.Write([]byte(u.Password))
-	u.Password = hex.EncodeToString(h.Sum(nil))
+	u.Password = util.Hash(strings.NewReader(u.Password), []byte(Cfg.SecuritySalt))
 }

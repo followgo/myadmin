@@ -17,7 +17,7 @@ import (
 
 // Resize 调整图片尺寸
 // 支持的图片格式：webp, jpg, png, gif
-func Resize(src io.Reader, mimeType string, maxWidth, maxHeight uint, quality float32) (io.Reader, error) {
+func Resize(src io.Reader, mimeType string, maxWidth, maxHeight uint, quality float32) (*bytes.Buffer, error) {
 	switch strings.ToLower(mimeType) {
 	case "image/webp":
 		m, err := webp.Decode(src)
@@ -28,7 +28,7 @@ func Resize(src io.Reader, mimeType string, maxWidth, maxHeight uint, quality fl
 		m = resize.Thumbnail(maxWidth, maxHeight, m, resize.Lanczos2)
 
 		buf := bytes.NewBuffer(nil)
-		err = webp.Encode(buf, m, &webp.Options{Lossless: true, Quality: quality})
+		err = webp.Encode(buf, m, &webp.Options{Lossless: false, Quality: quality})
 		return buf, err
 
 	case "image/jpeg":

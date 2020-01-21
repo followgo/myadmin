@@ -25,4 +25,7 @@ type Filter struct {
 
 	// Limit 限制获取的数目，第一个参数为条数，第二个参数表示开始位置
 	Limit [2]int `json:"limit" form:"limit" query:"limit"`
+
+	// UpdateAllCols 更新所有字段，即使字段值为nil（默认nil字段不更新）
+	UpdateAllCols bool
 }

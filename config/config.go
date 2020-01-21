@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/followgo/myadmin/util/imagex"
 	"github.com/followgo/myadmin/util/random"
 )
 
@@ -27,6 +28,20 @@ var Cfg = &config{
 		LogFile:     "./log/orm.log",
 		UseLRUCache: false,
 	},
+	Upload: uploadConfig{
+		Directory: "./upload",
+		AllowMIMETypes: []string{
+			imagex.MIMETypeByExtension(".webp"),
+			imagex.MIMETypeByExtension(".png"),
+			imagex.MIMETypeByExtension(".jpg"),
+			imagex.MIMETypeByExtension(".gif"),
+			imagex.MIMETypeByExtension(".pdf"),
+			imagex.MIMETypeByExtension(".zip"),
+			imagex.MIMETypeByExtension(".webm"),
+		},
+		AllowMaxSizeMB:       10,
+		ConvertPictureToWebp: true,
+	},
 }
 
 // config 主配置
@@ -42,6 +57,9 @@ type config struct {
 
 	// Orm ORM 引擎配置
 	Orm ormConfig
+
+	// Upload 上传设置
+	Upload uploadConfig
 }
 
 // httpConfig HTTP 配置
@@ -90,4 +108,19 @@ type ormConfig struct {
 
 	// UseLRUCache 开启缓存
 	UseLRUCache bool
+}
+
+// uploadConfig 上传设置
+type uploadConfig struct {
+	// Directory 存储目录
+	Directory string
+
+	// AllowMIMETypes 允许上传的文件类型
+	AllowMIMETypes []string
+
+	// AllowMaxSizeMB 允许上传的最大尺寸
+	AllowMaxSizeMB int64
+
+	// ConvertPictureToWebp 转换图片格式为webp格式
+	ConvertPictureToWebp bool
 }

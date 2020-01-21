@@ -20,7 +20,9 @@ func main() {
 	initLogger()
 
 	// 初始化 ORM
-	if err := orm.InitOrmAndSyncModels(new(model.User)); err != nil {
+	if err := orm.InitOrmAndSyncModels(
+		new(model.User), new(model.File),
+	); err != nil {
 		logrus.WithError(err).Fatalln("初始化ORM并同步数据模型")
 	}
 	logrus.Infoln("已经初始化ORM和同步数据模型")

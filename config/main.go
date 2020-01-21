@@ -4,8 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/followgo/myadmin/util/configurator"
 	"github.com/followgo/myadmin/util"
+	"github.com/followgo/myadmin/util/configurator"
 )
 
 const (
@@ -24,7 +24,7 @@ func LoadConfig() error {
 			return err
 		}
 
-		return c.Save("配置文件")
+		return c.Save("配置文件，请谨慎修改")
 	}
 
 	return c.Load()

@@ -17,7 +17,7 @@ import (
 // ConvertFormat 转换图片格式
 // 支持的源图片格式：webp, jpg, png, gif
 // 支持的目标图片格式: jpg, webp
-func ConvertFormat(src io.Reader, srcMIMEType, dstMIMEType string, quality float32) (io.Reader, error) {
+func ConvertFormat(src io.Reader, srcMIMEType, dstMIMEType string, quality float32) (*bytes.Buffer, error) {
 	var m image.Image
 	var err error
 
@@ -61,7 +61,7 @@ func ConvertFormat(src io.Reader, srcMIMEType, dstMIMEType string, quality float
 	var buf = bytes.NewBuffer(nil)
 	switch strings.ToLower(dstMIMEType) {
 	case "image/webp":
-		err = webp.Encode(buf, m, &webp.Options{Lossless: true, Quality: quality})
+		err = webp.Encode(buf, m, &webp.Options{Lossless: false, Quality: quality})
 
 	case "image/jpeg":
 		err = jpeg.Encode(buf, m, &jpeg.Options{Quality: int(quality)})

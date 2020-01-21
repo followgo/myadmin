@@ -30,8 +30,6 @@ func NewSession(filter *Filter) (s *xorm.Session) {
 
 	if filter.Cols != nil && len(filter.Cols) > 0 {
 		s = s.Cols(filter.Cols...)
-	} else {
-		s = s.AllCols()
 	}
 
 	if filter.OmitCols != nil && len(filter.OmitCols) > 0 {
@@ -60,6 +58,10 @@ func NewSession(filter *Filter) (s *xorm.Session) {
 
 	if filter.Limit[0] != 0 {
 		s = s.Limit(filter.Limit[0], filter.Limit[1])
+	}
+
+	if filter.UpdateAllCols {
+		s = s.AllCols()
 	}
 
 	return s
