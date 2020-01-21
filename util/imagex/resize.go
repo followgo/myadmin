@@ -18,6 +18,13 @@ import (
 // Resize 调整图片尺寸
 // 支持的图片格式：webp, jpg, png, gif
 func Resize(src io.Reader, mimeType string, maxWidth, maxHeight uint, quality float32) (*bytes.Buffer, error) {
+	if maxWidth == 0 {
+		maxWidth = 99999
+	}
+	if maxHeight == 0 {
+		maxHeight = 99999
+	}
+
 	switch strings.ToLower(mimeType) {
 	case "image/webp":
 		m, err := webp.Decode(src)

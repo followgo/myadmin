@@ -10,7 +10,6 @@ import (
 
 type File struct {
 	UUID     string    `xorm:"pk 'uuid'" json:"uuid"`
-	Filename string    `json:"filename"`
 	MIMEType string    `xorm:"'mime_type'" json:"mime_type"`
 	Hash     string    `xorm:"notnull unique" json:"hash"`
 	Size     int64     `json:"size"`

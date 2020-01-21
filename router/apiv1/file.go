@@ -2,10 +2,13 @@ package apiv1
 
 import (
 	"bytes"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 
@@ -55,13 +58,13 @@ func (api *FileAPI) Upload(c echo.Context) error {
 		}
 
 		// 根据 MIMEType 使用文件扩展名
-		extName, err := imagex.ExtensionsByMIMEType(mimeType)
-		if err != nil || len(extName) == 0 {
+		extNames, err := imagex.ExtensionsByMIMEType(mimeType)
+		if err != nil || len(extNames) == 0 {
 			return &echo.HTTPError{Code: http.StatusBadRequest, Message: "未知的 MIME 类型"}
 		}
 
 		// 保存文件
-		dstFilename := filepath.Join(Cfg.Upload.Directory, fileHash+extName[0])
+		dstFilename := filepath.Join(Cfg.Upload.Directory, fileHash+extNames[0])
 		dst, err := os.OpenFile(dstFilename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 		if err != nil {
 			return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "创建文件", Internal: err}
@@ -72,7 +75,6 @@ func (api *FileAPI) Upload(c echo.Context) error {
 			return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "保存文件", Internal: err}
 		}
 
-		modelFile.Filename = fileHash + extName[0]
 		modelFile.Size = file.Size
 		modelFile.Hash = fileHash
 		modelFile.MIMEType = mimeType
@@ -89,7 +91,7 @@ func (api *FileAPI) Upload(c echo.Context) error {
 	var buf *bytes.Buffer
 
 	// 优化图片
-	buf, err = imagex.Resize(src, mimeType, 1200, 9999, 90) // 不限制长图
+	buf, err = imagex.Resize(src, mimeType, 1200, 0, 90) // 不限制长图
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "优化图片大小出错", Internal: err}
 	}
@@ -116,13 +118,13 @@ func (api *FileAPI) Upload(c echo.Context) error {
 	}
 
 	// 根据 MIMEType 使用文件扩展名
-	extName, err := imagex.ExtensionsByMIMEType(mimeType)
-	if err != nil || len(extName) == 0 {
+	extNames, err := imagex.ExtensionsByMIMEType(mimeType)
+	if err != nil || len(extNames) == 0 {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "未知的 MIME 类型"}
 	}
 
 	// 保存文件
-	dstFilename := filepath.Join(Cfg.Upload.Directory, fileHash+extName[0])
+	dstFilename := filepath.Join(Cfg.Upload.Directory, fileHash+extNames[0])
 	dst, err := os.OpenFile(dstFilename, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "创建文件", Internal: err}
@@ -134,7 +136,6 @@ func (api *FileAPI) Upload(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "保存文件", Internal: err}
 	}
 
-	modelFile.Filename = fileHash + extName[0]
 	modelFile.Size = size
 	modelFile.Hash = fileHash
 	modelFile.MIMEType = mimeType
@@ -147,22 +148,85 @@ func (api *FileAPI) Upload(c echo.Context) error {
 	return c.JSON(http.StatusCreated, modelFile)
 }
 
-func (api *FileAPI) UploadHTML(c echo.Context) error {
-	return c.HTML(200, `<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Single file upload</title>
-</head>
-<body>
-<h1>Upload single file with fields</h1>
+// Download 下载文件
+func (api *FileAPI) Download(c echo.Context) error {
+	file := model.File{UUID: c.Param("uuid")}
+	has, err := file.Get()
+	if err != nil {
+		return &echo.HTTPError{Code: http.StatusBadRequest, Internal: err}
+	} else if !has {
+		return &echo.HTTPError{Code: http.StatusNotFound, Message: "无此文件信息"}
+	}
 
-<form action="/api/v1/upload" method="post" enctype="multipart/form-data">
-    Name: <input type="text" name="name"><br>
-    Email: <input type="email" name="email"><br>
-    Files: <input type="file" name="file"><br><br>
-    <input type="submit" value="Submit">
-</form>
-</body>
-</html>`)
+	// 根据 MIMEType 使用文件扩展名
+	extNames, err := imagex.ExtensionsByMIMEType(file.MIMEType)
+	if err != nil || len(extNames) == 0 {
+		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "未知的 MIME 类型"}
+	}
+
+	filePth := filepath.Join(Cfg.Upload.Directory, file.Hash+extNames[0])
+	if has, err := util.HasFile(filePth); err != nil {
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取文件发生错误", Internal: err}
+	} else if !has {
+		return &echo.HTTPError{Code: http.StatusNotFound, Message: "无此资源"}
+	}
+
+	return c.File(filePth)
+}
+
+// Image 下载图片，支持调整图片尺寸
+func (api *FileAPI) Image(c echo.Context) error {
+	file := model.File{UUID: c.Param("uuid")}
+	has, err := file.Get()
+	if err != nil {
+		return &echo.HTTPError{Code: http.StatusBadRequest, Internal: err}
+	} else if !has {
+		return &echo.HTTPError{Code: http.StatusNotFound, Message: "无此文件信息"}
+	}
+
+	// 根据 MIMEType 使用文件扩展名
+	extNames, err := imagex.ExtensionsByMIMEType(file.MIMEType)
+	if err != nil || len(extNames) == 0 {
+		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "未知的 MIME 类型"}
+	}
+
+	baseFilePth := filepath.Join(Cfg.Upload.Directory, file.Hash+extNames[0])
+	if has, err := util.HasFile(baseFilePth); err != nil {
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取文件发生错误", Internal: err}
+	} else if !has {
+		return &echo.HTTPError{Code: http.StatusNotFound, Message: "无此资源"}
+	}
+
+	maxWidth, _ := strconv.Atoi(c.QueryParam("max_width"))
+	maxHeight, _ := strconv.Atoi(c.QueryParam("max_height"))
+
+	// 缩量图
+	if maxWidth > 0 || maxHeight > 0 {
+		thumbnailFilename := filepath.Join(Cfg.Upload.Directory, fmt.Sprintf("%s_%d_%d%s", file.Hash, maxWidth, maxHeight, extNames[0]))
+		if has, err := util.HasFile(thumbnailFilename); err != nil {
+			return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取文件发生错误", Internal: err}
+		} else if has { // 文件存在
+			return c.File(thumbnailFilename)
+		}
+
+		// 创建缩略图
+		f, err := os.OpenFile(baseFilePth, os.O_RDONLY, 0)
+		if err != nil {
+			return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "打开图片文件发生错误", Internal: err}
+		}
+		defer f.Close()
+
+		buf, err := imagex.Resize(f, file.MIMEType, uint(maxWidth), uint(maxHeight), 80)
+		if err != nil {
+			return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "调整图片尺寸", Internal: err}
+		}
+
+		if err := ioutil.WriteFile(thumbnailFilename, buf.Bytes(), 0644); err != nil {
+			return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "创建缩略图文件", Internal: err}
+		}
+
+		return c.File(thumbnailFilename)
+	}
+
+	return c.File(baseFilePth)
 }
