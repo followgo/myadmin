@@ -14,6 +14,7 @@ import (
 
 	. "github.com/followgo/myadmin/config"
 	"github.com/followgo/myadmin/model"
+	"github.com/followgo/myadmin/module/orm"
 	"github.com/followgo/myadmin/util"
 	"github.com/followgo/myadmin/util/imagex"
 )
@@ -229,4 +230,24 @@ func (api *FileAPI) Image(c echo.Context) error {
 	}
 
 	return c.File(baseFilePth)
+}
+
+// Select 列出所有选择的对象
+func (api *FileAPI) Select(c echo.Context) error {
+	filter := new(orm.Filter)
+	if err := c.Bind(filter); err != nil {
+		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
+	}
+
+	files, err := new(model.File).Find(filter)
+	if err != nil {
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
+	}
+
+	total, err := new(model.File).Count(filter)
+	if err != nil {
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{"total": total, "data": files})
 }

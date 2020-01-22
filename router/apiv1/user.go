@@ -38,8 +38,8 @@ func (api *UserAPI) Get(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusNotFound, Message: "没有此数据"}
 	}
 
-	_ = util.StructToStruct(&api, user)
-	return c.JSON(http.StatusOK, &api)
+	_ = util.StructToStruct(api, user)
+	return c.JSON(http.StatusOK, api)
 }
 
 // Select 列出所有选择的对象
@@ -54,16 +54,23 @@ func (api *UserAPI) Select(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
 
-	list := make([]UserAPI, 0, len(users))
+	list := make([]UserAPI, len(users))
 	for i := range users {
 		_ = util.StructToStruct(&list[i], users[i])
 	}
-	return c.JSON(http.StatusOK, &list)
+
+	// 数量
+	total, err := new(model.User).Count(filter)
+	if err != nil {
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
+	}
+
+	return c.JSON(http.StatusOK, echo.Map{"total": total, "data": list})
 }
 
 // Create 创建一个新对象
 func (api *UserAPI) Create(c echo.Context) error {
-	if err := c.Bind(&api); err != nil {
+	if err := c.Bind(api); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
 
@@ -78,13 +85,13 @@ func (api *UserAPI) Create(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "插入数据失败"}
 	}
 
-	_ = util.StructToStruct(&api, user)
+	_ = util.StructToStruct(api, user)
 	return c.JSON(http.StatusOK, api)
 }
 
 // Update 完全更新一个对象
 func (api *UserAPI) Update(c echo.Context) error {
-	if err := c.Bind(&api); err != nil {
+	if err := c.Bind(api); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
 	api.UUID = c.Param("uuid")
@@ -100,13 +107,13 @@ func (api *UserAPI) Update(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	_ = util.StructToStruct(&api, user)
+	_ = util.StructToStruct(api, user)
 	return c.JSON(http.StatusOK, api)
 }
 
 // Patch 修改一个对象的属性
 func (api *UserAPI) Patch(c echo.Context) error {
-	if err := c.Bind(&api); err != nil {
+	if err := c.Bind(api); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
 	api.UUID = c.Param("uuid")
@@ -127,7 +134,7 @@ func (api *UserAPI) Patch(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	_ = util.StructToStruct(&api, user)
+	_ = util.StructToStruct(api, user)
 	return c.JSON(http.StatusOK, api)
 }
 

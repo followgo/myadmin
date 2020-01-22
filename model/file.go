@@ -29,7 +29,7 @@ func (f *File) Get() (has bool, err error) {
 func (f *File) Find(filter *orm.Filter) (files []File, err error) {
 	s := orm.NewSession(filter)
 
-	files = make([]File, 100)
+	files = make([]File, 0,100)
 	if err := s.Find(&files); err != nil {
 		return nil, err
 	}

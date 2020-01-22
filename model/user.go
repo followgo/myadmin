@@ -40,7 +40,7 @@ func (u *User) Get() (has bool, err error) {
 func (u *User) Find(filter *orm.Filter) (users []User, err error) {
 	s := orm.NewSession(filter)
 
-	users = make([]User, 100)
+	users = make([]User, 0, 100)
 	if err := s.Find(&users); err != nil {
 		return nil, err
 	}
