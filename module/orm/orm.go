@@ -18,6 +18,9 @@ import (
 var (
 	// engine Orm 引擎接口
 	engine xorm.EngineInterface
+
+	// DefaultLimitQuantity 默认Limit
+	DefaultLimitQuantity = 100
 )
 
 // NewSession 创建session，并设置声明
@@ -56,8 +59,11 @@ func NewSession(filter *Filter) (s *xorm.Session) {
 		s = s.GroupBy(filter.GroupByKeys)
 	}
 
-	if filter.Limit[0] != 0 {
-		s = s.Limit(filter.Limit[0], filter.Limit[1])
+	if filter.Limit != 0 {
+		s = s.Limit(filter.Limit, filter.Offset)
+	} else {
+		filter.Limit = DefaultLimitQuantity // 默认数量
+		s = s.Limit(filter.Limit)
 	}
 
 	if filter.UpdateAllCols {

@@ -21,8 +21,8 @@ import (
 
 type FileAPI struct{}
 
-// Upload 上传文件
-func (api *FileAPI) Upload(c echo.Context) error {
+// Create 上传文件
+func (api *FileAPI) Create(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Internal: err}
@@ -149,8 +149,8 @@ func (api *FileAPI) Upload(c echo.Context) error {
 	return c.JSON(http.StatusCreated, modelFile)
 }
 
-// Download 下载文件
-func (api *FileAPI) Download(c echo.Context) error {
+// Get 下载文件
+func (api *FileAPI) Get(c echo.Context) error {
 	file := model.File{UUID: c.Param("uuid")}
 	has, err := file.Get()
 	if err != nil {
@@ -159,7 +159,7 @@ func (api *FileAPI) Download(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusNotFound, Message: "无此文件信息"}
 	}
 
-	// 根据 MIMEType 使用文件扩展名
+	// 根据 MIMEType 获取文件扩展名
 	extNames, err := imagex.ExtensionsByMIMEType(file.MIMEType)
 	if err != nil || len(extNames) == 0 {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "未知的 MIME 类型"}
@@ -175,8 +175,8 @@ func (api *FileAPI) Download(c echo.Context) error {
 	return c.File(filePth)
 }
 
-// Image 下载图片，支持调整图片尺寸
-func (api *FileAPI) Image(c echo.Context) error {
+// GetImage 下载图片，支持调整图片尺寸
+func (api *FileAPI) GetImage(c echo.Context) error {
 	file := model.File{UUID: c.Param("uuid")}
 	has, err := file.Get()
 	if err != nil {
@@ -251,3 +251,43 @@ func (api *FileAPI) Select(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, echo.Map{"total": total, "data": files})
 }
+
+// Delete 删除一个对象
+func (api *FileAPI) Delete(c echo.Context) error {
+	file := model.File{UUID: c.Param("uuid")}
+	has, err := file.Get()
+	if err != nil {
+		return &echo.HTTPError{Code: http.StatusBadRequest, Internal: err}
+	} else if !has {
+		return &echo.HTTPError{Code: http.StatusNotFound, Message: "无此文件信息"}
+	}
+
+	// 根据 MIMEType 获取文件扩展名
+	extNames, err := imagex.ExtensionsByMIMEType(file.MIMEType)
+	if err != nil || len(extNames) == 0 {
+		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "未知的 MIME 类型"}
+	}
+	rmErr := os.Remove(filepath.Join(Cfg.Upload.Directory, file.Hash+extNames[0]))
+
+	ok, err := file.Del()
+	if err != nil {
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "删除数据出错", Internal: err}
+	}
+	if !ok {
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "删除数据失败"}
+	}
+
+	// 删除文件的过程中出现错误
+	if rmErr != nil {
+		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "删除文件出错", Internal: rmErr}
+	}
+
+	return c.NoContent(http.StatusNoContent)
+
+}
+
+// Update 完全更新一个对象
+func (api *FileAPI) Update(c echo.Context) error { return echo.ErrNotFound }
+
+// Patch 修改一个对象的属性
+func (api *FileAPI) Patch(c echo.Context) error { return echo.ErrNotFound }

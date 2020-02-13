@@ -23,8 +23,11 @@ type Filter struct {
 	// GroupByKeys 分组
 	GroupByKeys string `json:"group_by_keys" form:"group_by_keys" query:"group_by_keys"`
 
-	// Limit 限制获取的数目，第一个参数为条数，第二个参数表示开始位置
-	Limit [2]int `json:"limit" form:"limit" query:"limit"`
+	// Limit 限制获取的数目
+	Limit int `json:"limit" form:"limit" query:"limit"`
+
+	// Offset 偏移
+	Offset int `json:"offset" form:"offset" query:"offset"`
 
 	// UpdateAllCols 更新所有字段，即使字段值为nil（默认nil字段不更新）
 	UpdateAllCols bool

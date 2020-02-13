@@ -10,7 +10,9 @@ import (
 
 // init 创建初始化对象
 func init() {
-	if err := os.MkdirAll(Cfg.Upload.Directory, 0755); err != nil {
-		logrus.WithError(err).Fatalln("创建文件上传目录")
+	for _, d := range []string{"./log", Cfg.Upload.Directory} {
+		if err := os.MkdirAll(d, 0755); err != nil {
+			logrus.Fatalln(err)
+		}
 	}
 }

@@ -9,9 +9,9 @@ import (
 )
 
 type File struct {
-	UUID     string    `xorm:"pk 'uuid'" json:"uuid"`
-	MIMEType string    `xorm:"'mime_type'" json:"mime_type"`
-	Hash     string    `xorm:"notnull unique" json:"hash"`
+	UUID     string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
+	MIMEType string    `xorm:"varchar(64) 'mime_type'" json:"mime_type"`
+	Hash     string    `xorm:"varchar(255) notnull unique" json:"hash"`
 	Size     int64     `json:"size"`
 	Created  time.Time `xorm:"created" json:"created"`
 }
@@ -29,7 +29,7 @@ func (f *File) Get() (has bool, err error) {
 func (f *File) Find(filter *orm.Filter) (files []File, err error) {
 	s := orm.NewSession(filter)
 
-	files = make([]File, 0,100)
+	files = make([]File, 0, 100)
 	if err := s.Find(&files); err != nil {
 		return nil, err
 	}

@@ -13,13 +13,14 @@ import (
 
 // User 管理员用户信息
 type User struct {
-	UUID          string `xorm:"pk 'uuid'"`
-	Email         string `xorm:"notnull unique"`
-	Username      string
-	Password      string `xorm:"notnull"`
-	Roles         []string
+	UUID          string   `xorm:"varchar(36) pk 'uuid'"`
+	Email         string   `xorm:"varchar(64) notnull unique"`
+	Phone         string   `xorm:"varchar(32)"`
+	Username      string   `xorm:"varchar(32)"`
+	Password      string   `xorm:"varchar(255) notnull"`
+	Roles         []string `xorm:"varchar(128)"`
 	Enabled       bool
-	LastLoginFrom string
+	LastLoginFrom string `xorm:"varchar(64)"`
 	LastLoginAt   time.Time
 	LoginCount    uint
 	Created       time.Time `xorm:"created"`
@@ -40,7 +41,7 @@ func (u *User) Get() (has bool, err error) {
 func (u *User) Find(filter *orm.Filter) (users []User, err error) {
 	s := orm.NewSession(filter)
 
-	users = make([]User, 0, 100)
+	users = make([]User, 0, filter.Limit)
 	if err := s.Find(&users); err != nil {
 		return nil, err
 	}
