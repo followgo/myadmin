@@ -29,7 +29,7 @@ type UserAPI struct {
 
 // Get 根据 `ID` 获取指定的对象
 func (api *UserAPI) Get(c echo.Context) error {
-	user := model.User{UUID: c.Param("uuid")}
+	user := model.Admin{UUID: c.Param("uuid")}
 	has, err := user.Get()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
@@ -49,7 +49,7 @@ func (api *UserAPI) Select(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
 
-	users, err := new(model.User).Find(filter)
+	users, err := new(model.Admin).Find(filter)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
@@ -60,7 +60,7 @@ func (api *UserAPI) Select(c echo.Context) error {
 	}
 
 	// 数量
-	total, err := new(model.User).Count(filter)
+	total, err := new(model.Admin).Count(filter)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
@@ -74,7 +74,7 @@ func (api *UserAPI) Create(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
 
-	user := model.User{}
+	user := model.Admin{}
 	_ = util.StructToStruct(&user, api)
 
 	ok, err := user.Insert()
@@ -96,7 +96,7 @@ func (api *UserAPI) Update(c echo.Context) error {
 	}
 	api.UUID = c.Param("uuid")
 
-	user := model.User{}
+	user := model.Admin{}
 	_ = util.StructToStruct(&user, api)
 
 	n, err := user.Update(nil, []string{"last_login_from", "last_login_at", "login_count"})
@@ -118,7 +118,7 @@ func (api *UserAPI) Patch(c echo.Context) error {
 	}
 	api.UUID = c.Param("uuid")
 
-	user := model.User{}
+	user := model.Admin{}
 	_ = util.StructToStruct(&user, api)
 
 	cols := strings.Split(c.QueryParam("cols"), ";")
@@ -140,7 +140,7 @@ func (api *UserAPI) Patch(c echo.Context) error {
 
 // Delete 删除一个对象
 func (api *UserAPI) Delete(c echo.Context) error {
-	user := &model.User{UUID: c.Param("uuid")}
+	user := &model.Admin{UUID: c.Param("uuid")}
 	ok, err := user.Del()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "删除数据出错", Internal: err}

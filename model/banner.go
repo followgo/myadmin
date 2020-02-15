@@ -11,12 +11,13 @@ import (
 // Banner 页面横幅
 type Banner struct {
 	UUID        string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
-	FileUUID    string    `xorm:"varchar(36) notnull 'file_uuid'" json:"file_uuid"`
-	Alternative string    `xorm:"varchar(64)" json:"alternative"`
-	Title       string    `xorm:"varchar(64)" json:"title"`
-	OrderNumber string    `json:"order_number"`           // 排序
-	Tag         string    `xorm:"varchar(16)" json:"tag"` // 标记，用于区分使用的地方
-	Hidden      bool      `json:"hidden"`                 // 隐藏
+	ImageUUID   string    `xorm:"varchar(36) notnull 'image_uuid'" json:"image_uuid"` // 图片
+	Title       string    `xorm:"varchar(24)" json:"title"`                           // 标题
+	Link        string    `xorm:"varchar(64)" json:"link"`                            // 点击跳转的地址
+	Intro       string    `xorm:"varchar(32)" json:"intro"`                           // 简介
+	OrderNumber int       `xorm:"default(1000)" json:"order_number"`                  // 排序
+	Tag         string    `xorm:"varchar(16)" json:"tag"`                             // 标记，用于区分使用的地方
+	Hidden      bool      `json:"hidden"`                                             // 隐藏
 	Created     time.Time `xorm:"created" json:"created"`
 	Updated     time.Time `xorm:"updated" json:"updated"`
 }

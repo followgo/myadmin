@@ -8,6 +8,7 @@ import (
 	"github.com/followgo/myadmin/module/orm"
 )
 
+// File 上传的文件
 type File struct {
 	UUID     string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
 	MIMEType string    `xorm:"varchar(64) 'mime_type'" json:"mime_type"`

@@ -21,7 +21,11 @@ func main() {
 
 	// 初始化 ORM
 	if err := orm.InitOrmAndSyncModels(
-		new(model.User), new(model.File),
+		new(model.Admin), new(model.File),
+		new(model.Setting), new(model.Part), new(model.Banner), new(model.Partner),
+		new(model.ArticleCategory), new(model.Article),
+		new(model.MarketSegment), new(model.TypicalCase), new(model.Solution),
+		new(model.ProductCategory), new(model.Product), new(model.ProductImageRelation), new(model.ProductDetailPart), new(model.ProductCategoryRelation),
 	); err != nil {
 		logrus.WithError(err).Fatalln("初始化ORM并同步数据模型")
 	}
@@ -37,11 +41,11 @@ func main() {
 // tryInsertFactoryDefaultData 尝试插入初始化数据
 func tryInsertFactoryDefaultData() {
 	// 插入默认的超级用户
-	var u = new(model.User)
+	var u = new(model.Admin)
 	if n, err := u.Count(nil); err != nil {
 		logrus.WithError(err).Fatalln("获取用户数量")
 	} else if n == 0 {
-		u = &model.User{Username: "admin", Email: "admin@local", Password: "admin", Roles: []string{"viewer", "editor", "admin"}, Enabled: true}
+		u = &model.Admin{Username: "admin", Email: "admin@local", Password: "admin", Roles: []string{"viewer", "editor", "admin"}, Enabled: true}
 		if ok, err := u.Insert(); err != nil {
 			logrus.WithError(err).Fatalln("插入默认的超级用户")
 		} else if !ok {

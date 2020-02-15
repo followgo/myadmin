@@ -11,11 +11,10 @@ import (
 	"github.com/followgo/myadmin/util"
 )
 
-// User 管理员用户信息
-type User struct {
+// Admin 管理员用户信息
+type Admin struct {
 	UUID          string   `xorm:"varchar(36) pk 'uuid'"`
 	Email         string   `xorm:"varchar(64) notnull unique"`
-	Phone         string   `xorm:"varchar(32)"`
 	Username      string   `xorm:"varchar(32)"`
 	Password      string   `xorm:"varchar(255) notnull"`
 	Roles         []string `xorm:"varchar(128)"`
@@ -28,20 +27,20 @@ type User struct {
 }
 
 // TableName 定义数据库表名
-func (u *User) TableName() string { return "users" }
+func (u *Admin) TableName() string { return "users" }
 
 // Get 根据非 nil 字段获取一条记录
-func (u *User) Get() (has bool, err error) {
+func (u *Admin) Get() (has bool, err error) {
 	has, err = orm.NewSession(nil).Get(u)
 	u.coverPwd()
 	return
 }
 
 // Find 查询多条数据
-func (u *User) Find(filter *orm.Filter) (users []User, err error) {
+func (u *Admin) Find(filter *orm.Filter) (users []Admin, err error) {
 	s := orm.NewSession(filter)
 
-	users = make([]User, 0, filter.Limit)
+	users = make([]Admin, 0, filter.Limit)
 	if err := s.Find(&users); err != nil {
 		return nil, err
 	}
@@ -53,13 +52,13 @@ func (u *User) Find(filter *orm.Filter) (users []User, err error) {
 }
 
 // Count 统计数量
-func (u *User) Count(filter *orm.Filter) (n int64, err error) {
+func (u *Admin) Count(filter *orm.Filter) (n int64, err error) {
 	s := orm.NewSession(filter)
-	return s.Count(new(User))
+	return s.Count(new(Admin))
 }
 
 // Insert 插入一条记录
-func (u *User) Insert() (ok bool, err error) {
+func (u *Admin) Insert() (ok bool, err error) {
 	u.hashPwd()
 	u.UUID = uuid.NewV1().String()
 	n, err := orm.NewSession(nil).InsertOne(u)
@@ -68,7 +67,7 @@ func (u *User) Insert() (ok bool, err error) {
 }
 
 // Update 更新记录
-func (u *User) Update(cols, omitCols []string) (n int64, err error) {
+func (u *Admin) Update(cols, omitCols []string) (n int64, err error) {
 	if u.Password != "" {
 		u.hashPwd()
 	}
@@ -86,16 +85,19 @@ func (u *User) Update(cols, omitCols []string) (n int64, err error) {
 }
 
 // Del 根据uuid删除一条记录
-func (u *User) Del() (ok bool, err error) {
-	n, err := orm.NewSession(&orm.Filter{Query: "uuid=?", QueryArgs: []interface{}{u.UUID}}).Delete(new(User))
+func (u *Admin) Del() (ok bool, err error) {
+	n, err := orm.NewSession(&orm.Filter{Query: "uuid=?", QueryArgs: []interface{}{u.UUID}}).Delete(new(Admin))
 	return n != 0, err
 }
 
 // Validate 验证用户
-func (u *User) Validate() (ok bool, err error) {
+func (u *Admin) Validate() (ok bool, err error) {
 	u.hashPwd()
-	_user := new(User)
-	ok, err = orm.NewSession(&orm.Filter{Query: "(username=? OR email=?) AND password=?", QueryArgs: []interface{}{u.Username, u.Email, u.Password}}).Get(_user)
+	_user := new(Admin)
+	ok, err = orm.NewSession(&orm.Filter{
+		Query:     "(username=? OR email=?) AND password=?",
+		QueryArgs: []interface{}{u.Username, u.Email, u.Password},
+	}).Get(_user)
 	u.coverPwd()
 
 	if err != nil {
@@ -112,9 +114,9 @@ func (u *User) Validate() (ok bool, err error) {
 }
 
 // coverPwd 掩盖密码
-func (u *User) coverPwd() { u.Password = "#########" }
+func (u *Admin) coverPwd() { u.Password = "#########" }
 
 // hashPwd 哈希密码
-func (u *User) hashPwd() {
+func (u *Admin) hashPwd() {
 	u.Password = util.Hash(strings.NewReader(u.Password), []byte(Cfg.SecuritySalt))
 }

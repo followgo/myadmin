@@ -39,7 +39,7 @@ func (api *Login) LoginByLocal(c echo.Context) error {
 	userAgent := c.Request().UserAgent()
 
 	// 检验用户名和密码
-	user := model.User{Username: api.from1.Username, Email: api.from1.Email, Password: api.from1.Password, LastLoginFrom: remoteIP}
+	user := model.Admin{Username: api.from1.Username, Email: api.from1.Email, Password: api.from1.Password, LastLoginFrom: remoteIP}
 	if ok, err := user.Validate(); err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读数据出错", Internal: err}
 	} else if !ok {
