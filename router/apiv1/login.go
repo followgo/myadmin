@@ -11,8 +11,8 @@ import (
 	"github.com/followgo/myadmin/module/onlineuser"
 )
 
-// Login 登入系统/注销登陆
-type Login struct {
+// LoginAPI 登入系统/注销登陆API
+type LoginAPI struct {
 	// from1: 使用本地用户名和密码登陆系统
 	from1 struct {
 		Username string `json:"username" form:"username" query:"username"`
@@ -25,12 +25,12 @@ type Login struct {
 }
 
 // LoginByLDAP 通过LDAP服务器登入系统
-func (api *Login) LoginByLDAP(c echo.Context) error {
+func (api *LoginAPI) LoginByLDAP(c echo.Context) error {
 	return echo.ErrNotFound
 }
 
 // LoginByLocal 使用本地用户名和密码登陆登入系统
-func (api *Login) LoginByLocal(c echo.Context) error {
+func (api *LoginAPI) LoginByLocal(c echo.Context) error {
 	if err := c.Bind(&api.from1); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "无效或过期的token", Internal: err}
 	}
@@ -64,14 +64,14 @@ func (api *Login) LoginByLocal(c echo.Context) error {
 }
 
 // Logout 登出系统
-func (api *Login) Logout(c echo.Context) error {
+func (api *LoginAPI) Logout(c echo.Context) error {
 	claims := jwt.GetClaimsFromToken(c)
 	onlineuser.RemoteUser(claims["uuid"].(string))
 	return c.NoContent(http.StatusCreated)
 }
 
 // RefreshToken 刷新 token，更新 token 的签发时间，到期时间
-func (api *Login) RefreshToken(c echo.Context) error {
+func (api *LoginAPI) RefreshToken(c echo.Context) error {
 	claims := jwt.GetClaimsFromToken(c)
 
 	tokenStr, err := jwt.GenerateTokenString(claims)

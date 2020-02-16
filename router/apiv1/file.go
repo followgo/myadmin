@@ -19,6 +19,7 @@ import (
 	"github.com/followgo/myadmin/util/imagex"
 )
 
+// FileAPI 文件上传和下载的API
 type FileAPI struct{}
 
 // Create 上传文件
@@ -151,7 +152,7 @@ func (api *FileAPI) Create(c echo.Context) error {
 
 // Get 下载文件
 func (api *FileAPI) Get(c echo.Context) error {
-	file := model.File{UUID: c.Param("uuid")}
+	file := &model.File{UUID: c.Param("uuid")}
 	has, err := file.Get()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Internal: err}
@@ -177,7 +178,7 @@ func (api *FileAPI) Get(c echo.Context) error {
 
 // GetImage 下载图片，支持调整图片尺寸
 func (api *FileAPI) GetImage(c echo.Context) error {
-	file := model.File{UUID: c.Param("uuid")}
+	file := &model.File{UUID: c.Param("uuid")}
 	has, err := file.Get()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Internal: err}
@@ -254,7 +255,7 @@ func (api *FileAPI) Select(c echo.Context) error {
 
 // Delete 删除一个对象
 func (api *FileAPI) Delete(c echo.Context) error {
-	file := model.File{UUID: c.Param("uuid")}
+	file := &model.File{UUID: c.Param("uuid")}
 	has, err := file.Get()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Internal: err}

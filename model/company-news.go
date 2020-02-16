@@ -11,7 +11,7 @@ import (
 // CompanyNews 公司资讯
 type CompanyNews struct {
 	UUID        string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
-	Category    string    `xorm:"varchar(16)" json:"category"`                // 类型：公司，产品，展会
+	Categ       string    `xorm:"varchar(16)" json:"categ"`                   // 类型：公司，产品，展会
 	ImageUUID   string    `xorm:"varchar(36) 'image_uuid'" json:"image_uuid"` // 图片
 	Description string    `xorm:"varchar(64)" json:"description"`             // SEO相关，文章简介
 	Keywords    string    `xorm:"varchar(64)" json:"keywords"`                // SEO相关

@@ -10,13 +10,13 @@ import (
 	"github.com/followgo/myadmin/module/orm"
 )
 
-// UserAPI 管理员用户API
-type UserAPI struct{}
+// CompanyNewsAPI 公司资讯API
+type CompanyNewsAPI struct{}
 
 // Get 根据 `uuid` 获取指定的对象
-func (api *UserAPI) Get(c echo.Context) error {
-	user := &model.Admin{UUID: c.Param("uuid")}
-	has, err := user.Get()
+func (api *CompanyNewsAPI) Get(c echo.Context) error {
+	news := &model.CompanyNews{UUID: c.Param("uuid")}
+	has, err := news.Get()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
@@ -24,38 +24,38 @@ func (api *UserAPI) Get(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusNotFound, Message: "没有此数据"}
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, news)
 }
 
 // Select 列出所有选择的对象
-func (api *UserAPI) Select(c echo.Context) error {
+func (api *CompanyNewsAPI) Select(c echo.Context) error {
 	filter := new(orm.Filter)
 	if err := c.Bind(filter); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
 
-	users, err := new(model.Admin).Find(filter)
+	news, err := new(model.CompanyNews).Find(filter)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
 
 	// 数量
-	total, err := new(model.Admin).Count(filter)
+	total, err := new(model.CompanyNews).Count(filter)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"total": total, "users": users})
+	return c.JSON(http.StatusOK, echo.Map{"total": total, "articles": news})
 }
 
 // Create 创建一个新对象
-func (api *UserAPI) Create(c echo.Context) error {
-	user := &model.Admin{}
-	if err := c.Bind(user); err != nil {
+func (api *CompanyNewsAPI) Create(c echo.Context) error {
+	news := &model.CompanyNews{}
+	if err := c.Bind(news); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
 
-	ok, err := user.Insert()
+	ok, err := news.Insert()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "插入数据出错", Internal: err}
 	}
@@ -63,18 +63,18 @@ func (api *UserAPI) Create(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "插入数据失败"}
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, news)
 }
 
 // Update 完全更新一个对象
-func (api *UserAPI) Update(c echo.Context) error {
-	user := &model.Admin{}
-	if err := c.Bind(user); err != nil {
+func (api *CompanyNewsAPI) Update(c echo.Context) error {
+	news := &model.CompanyNews{}
+	if err := c.Bind(news); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
-	user.UUID = c.Param("uuid")
+	news.UUID = c.Param("uuid")
 
-	n, err := user.Update(nil, []string{"last_login_from", "last_login_at", "login_count"})
+	n, err := news.Update(nil, nil)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据出错", Internal: err}
 	}
@@ -82,23 +82,23 @@ func (api *UserAPI) Update(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, news)
 }
 
 // Patch 修改一个对象的属性
-func (api *UserAPI) Patch(c echo.Context) error {
-	user := &model.Admin{}
-	if err := c.Bind(user); err != nil {
+func (api *CompanyNewsAPI) Patch(c echo.Context) error {
+	news := &model.CompanyNews{}
+	if err := c.Bind(news); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
-	user.UUID = c.Param("uuid")
+	news.UUID = c.Param("uuid")
 
 	cols := strings.Split(c.QueryParam("cols"), ",")
 	if len(cols) == 0 {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "缺少必要的参数"}
 	}
 
-	n, err := user.Update(cols, []string{"last_login_from", "last_login_at", "login_count"})
+	n, err := news.Update(cols, nil)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据出错", Internal: err}
 	}
@@ -106,13 +106,13 @@ func (api *UserAPI) Patch(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	return c.JSON(http.StatusOK, user)
+	return c.JSON(http.StatusOK, news)
 }
 
 // Delete 删除一个对象
-func (api *UserAPI) Delete(c echo.Context) error {
-	user := &model.Admin{UUID: c.Param("uuid")}
-	ok, err := user.Del()
+func (api *CompanyNewsAPI) Delete(c echo.Context) error {
+	news := &model.CompanyNews{UUID: c.Param("uuid")}
+	ok, err := news.Del()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "删除数据出错", Internal: err}
 	}

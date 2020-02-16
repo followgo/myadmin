@@ -10,19 +10,19 @@ import (
 
 // TypicalCase 典型案例
 type TypicalCase struct {
-	UUID                       string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
-	MarketSegmentUUID          string    `xorm:"varchar(36) notnull 'market_segment_uuid'" json:"market_segment_uuid"`
-	Title                      string    `json:"title"`                                                                            // 文章标题
-	Description                string    `json:"description"`                                                                      // SEO相关，文章简介
-	Keywords                   string    `json:"keywords"`                                                                         // SEO相关
-	ImageUUID                  string    `xorm:"varchar(36) 'image_uuid'" json:"image_uuid"`                                       // 图片
-	ContentMd                  string    `xorm:"text" json:"content_md"`                                                           // 文章内容，Markdown 格式
-	Released                   bool      `json:"released"`                                                                         // 发布
-	PostAt                     time.Time `json:"post_at"`                                                                          // 发布日期，一般按照这个进行排序
-	Sticky                     bool      `json:"sticky"`                                                                           // 置顶
-	RelatedProductCategoryUUID string    `xorm:"varchar(36) 'related_product_category_uuid'" json:"related_product_category_uuid"` // 关联的产品分类，用于展示的相关推荐产品
-	Created                    time.Time `xorm:"created" json:"created"`
-	Updated                    time.Time `xorm:"updated" json:"updated"`
+	UUID                    string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
+	MarketSegmentUUID       string    `xorm:"varchar(36) notnull 'market_segment_uuid'" json:"market_segment_uuid"`
+	Title                   string    `json:"title"`                                                                      // 文章标题
+	Description             string    `json:"description"`                                                                // SEO相关，文章简介
+	Keywords                string    `json:"keywords"`                                                                   // SEO相关
+	ImageUUID               string    `xorm:"varchar(36) 'image_uuid'" json:"image_uuid"`                                 // 图片
+	ContentMd               string    `xorm:"text" json:"content_md"`                                                     // 文章内容，Markdown 格式
+	Released                bool      `json:"released"`                                                                   // 发布
+	PostAt                  time.Time `json:"post_at"`                                                                    // 发布日期，一般按照这个进行排序
+	Sticky                  bool      `json:"sticky"`                                                                     // 置顶
+	RelatedProductCategUUID string    `xorm:"varchar(36) 'related_product_categ_uuid'" json:"related_product_categ_uuid"` // 关联的产品分类，用于展示的相关推荐产品
+	Created                 time.Time `xorm:"created" json:"created"`
+	Updated                 time.Time `xorm:"updated" json:"updated"`
 }
 
 // TableName 定义数据库表名

@@ -23,9 +23,9 @@ func main() {
 	if err := orm.InitOrmAndSyncModels(
 		new(model.Admin), new(model.File),
 		new(model.Setting), new(model.Part), new(model.Banner), new(model.Partner),
-		new(model.ArticleCategory), new(model.Article),
+		new(model.ArticleCateg), new(model.Article),
 		new(model.MarketSegment), new(model.TypicalCase), new(model.Solution),
-		new(model.ProductCategory), new(model.Product), new(model.ProductImageRelation), new(model.ProductDetailPart), new(model.ProductCategoryRelation),
+		new(model.ProductCateg), new(model.Product), new(model.ProductImageRelation), new(model.ProductDetailPart), new(model.ProductCategRelation),
 	); err != nil {
 		logrus.WithError(err).Fatalln("初始化ORM并同步数据模型")
 	}

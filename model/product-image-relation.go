@@ -8,13 +8,13 @@ import (
 
 // ProductImageRelation 产品图片
 type ProductImageRelation struct {
-	UUID         string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
-	CategoryUUID string    `xorm:"varchar(36) notnull" json:"category_uuid"`
-	ImageUUID    string    `xorm:"varchar(36) notnull 'image_uuid'" json:"image_uuid"` // 图片uuid
-	OrderNumber  int       `xorm:"default(1000)" json:"order_number"`                  // 排序
-	Hidden       bool      `json:"hidden"`                                             // 隐藏
-	Created      time.Time `xorm:"created" json:"created"`
-	Updated      time.Time `xorm:"updated" json:"updated"`
+	UUID        string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
+	ProductUUID string    `xorm:"varchar(36) notnull" json:"product_uuid"`
+	ImageUUID   string    `xorm:"varchar(36) notnull 'image_uuid'" json:"image_uuid"` // 图片uuid
+	OrderNumber int       `xorm:"default(1000)" json:"order_number"`                  // 排序
+	Hidden      bool      `json:"hidden"`                                             // 隐藏
+	Created     time.Time `xorm:"created" json:"created"`
+	Updated     time.Time `xorm:"updated" json:"updated"`
 }
 
 // TableName 定义数据库表名

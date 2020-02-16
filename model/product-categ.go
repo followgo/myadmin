@@ -8,8 +8,8 @@ import (
 	"github.com/followgo/myadmin/module/orm"
 )
 
-// ProductCategory 产品类别
-type ProductCategory struct {
+// ProductCateg 产品类别
+type ProductCateg struct {
 	UUID        string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
 	ParentUUID  string    `xorm:"varchar(36) 'parent_uuid'" json:"parent_uuid"`       // 父类
 	Name        string    `xorm:"varchar(32)" json:"name"`                            // 分类名称
@@ -23,18 +23,18 @@ type ProductCategory struct {
 }
 
 // TableName 定义数据库表名
-func (c *ProductCategory) TableName() string { return "product_categories" }
+func (c *ProductCateg) TableName() string { return "product_categories" }
 
 // Get 根据非 nil 字段获取一条记录
-func (c *ProductCategory) Get() (has bool, err error) {
+func (c *ProductCateg) Get() (has bool, err error) {
 	return orm.NewSession(nil).Get(c)
 }
 
 // Find 查询多条数据
-func (c *ProductCategory) Find(filter *orm.Filter) (categories []ProductCategory, err error) {
+func (c *ProductCateg) Find(filter *orm.Filter) (categories []ProductCateg, err error) {
 	s := orm.NewSession(filter)
 
-	categories = make([]ProductCategory, 0, filter.Limit)
+	categories = make([]ProductCateg, 0, filter.Limit)
 	if err := s.Find(&categories); err != nil {
 		return nil, err
 	}
@@ -42,20 +42,20 @@ func (c *ProductCategory) Find(filter *orm.Filter) (categories []ProductCategory
 }
 
 // Count 统计数量
-func (c *ProductCategory) Count(filter *orm.Filter) (n int64, err error) {
+func (c *ProductCateg) Count(filter *orm.Filter) (n int64, err error) {
 	s := orm.NewSession(filter)
-	return s.Count(new(ProductCategory))
+	return s.Count(new(ProductCateg))
 }
 
 // Insert 插入一条记录
-func (c *ProductCategory) Insert() (ok bool, err error) {
+func (c *ProductCateg) Insert() (ok bool, err error) {
 	c.UUID = uuid.NewV1().String()
 	n, err := orm.NewSession(nil).InsertOne(c)
 	return n != 0, err
 }
 
 // Update 更新记录
-func (c *ProductCategory) Update(cols, omitCols []string) (n int64, err error) {
+func (c *ProductCateg) Update(cols, omitCols []string) (n int64, err error) {
 	n, err = orm.NewSession(&orm.Filter{
 		Cols:          cols,
 		OmitCols:      omitCols,
@@ -68,7 +68,7 @@ func (c *ProductCategory) Update(cols, omitCols []string) (n int64, err error) {
 }
 
 // Del 根据uuid删除一条记录
-func (c *ProductCategory) Del() (ok bool, err error) {
-	n, err := orm.NewSession(&orm.Filter{Query: "uuid=?", QueryArgs: []interface{}{c.UUID}}).Delete(new(ProductCategory))
+func (c *ProductCateg) Del() (ok bool, err error) {
+	n, err := orm.NewSession(&orm.Filter{Query: "uuid=?", QueryArgs: []interface{}{c.UUID}}).Delete(new(ProductCateg))
 	return n != 0, err
 }

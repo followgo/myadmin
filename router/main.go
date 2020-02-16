@@ -8,7 +8,7 @@ import (
 
 // API 定义结构化的 API
 type API interface {
-	// Get 根据 `ID` 获取某个指定的对象，向客户端返回单个资源对象
+	// Get 根据 `uuid` 获取某个指定的对象，向客户端返回单个资源对象
 	// HTTP Method: GET, SuccessStatusCode=200
 	Get(c echo.Context) error
 

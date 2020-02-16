@@ -11,7 +11,7 @@ import (
 // Product 产品
 type Product struct {
 	UUID           string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
-	CategoryUUID   string    `xorm:"varchar(36) 'category_uuid'" json:"category_uuid"`
+	CategUUID      string    `xorm:"varchar(36) 'categ_uuid'" json:"categ_uuid"`
 	Title          string    `xorm:"varchar(32)" json:"title"`                                       // 主标题
 	SubTitle       string    `xorm:"varchar(32)" json:"sub_title"`                                   // 副标题
 	ModelCode      string    `xorm:"varchar(32)" json:"model_code"`                                  // 型号代码

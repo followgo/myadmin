@@ -13,17 +13,17 @@ import (
 
 // Admin 管理员用户信息
 type Admin struct {
-	UUID          string   `xorm:"varchar(36) pk 'uuid'"`
-	Email         string   `xorm:"varchar(64) notnull unique"`
-	Username      string   `xorm:"varchar(32)"`
-	Password      string   `xorm:"varchar(255) notnull"`
-	Roles         []string `xorm:"varchar(128)"`
-	Enabled       bool
-	LastLoginFrom string `xorm:"varchar(64)"`
-	LastLoginAt   time.Time
-	LoginCount    uint
-	Created       time.Time `xorm:"created"`
-	Updated       time.Time `xorm:"updated"`
+	UUID          string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
+	Email         string    `xorm:"varchar(64) notnull unique" json:"email"`
+	Username      string    `xorm:"varchar(32)" json:"username"`
+	Password      string    `xorm:"varchar(255) notnull" json:"password,omitempty"`
+	Roles         []string  `xorm:"varchar(128)" json:"roles"`
+	Enabled       bool      `json:"enabled"`
+	LastLoginFrom string    `xorm:"varchar(64)" json:"last_login_from"`
+	LastLoginAt   time.Time `json:"last_login_at"`
+	LoginCount    uint      `json:"login_count"`
+	Created       time.Time `xorm:"created" json:"created"`
+	Updated       time.Time `xorm:"updated" json:"updated"`
 }
 
 // TableName 定义数据库表名
@@ -32,7 +32,7 @@ func (u *Admin) TableName() string { return "users" }
 // Get 根据非 nil 字段获取一条记录
 func (u *Admin) Get() (has bool, err error) {
 	has, err = orm.NewSession(nil).Get(u)
-	u.coverPwd()
+	u.Password = ""
 	return
 }
 
@@ -46,7 +46,7 @@ func (u *Admin) Find(filter *orm.Filter) (users []Admin, err error) {
 	}
 
 	for i := range users {
-		users[i].coverPwd()
+		users[i].Password = ""
 	}
 	return users, err
 }
