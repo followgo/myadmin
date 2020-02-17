@@ -34,7 +34,7 @@ func (p *Part) Count(filter *orm.Filter) (n int64, err error) {
 
 // Insert 插入一条记录
 func (p *Part) Insert() (ok bool, err error) {
-	p.UUID=uuid.NewV1().String()
+	p.UUID = uuid.NewV1().String()
 	n, err := orm.NewSession(nil).InsertOne(p)
 	return n != 0, err
 }
@@ -42,7 +42,7 @@ func (p *Part) Insert() (ok bool, err error) {
 // Update 更新记录
 func (p *Part) Update() (n int64, err error) {
 	n, err = orm.NewSession(&orm.Filter{
-		Cols:      []string{"name","content_md"},
+		Cols:      []string{"name", "content_md"},
 		Query:     "uuid=?",
 		QueryArgs: []interface{}{p.UUID},
 	}).Update(p)
