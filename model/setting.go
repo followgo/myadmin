@@ -3,12 +3,15 @@ package model
 import (
 	"time"
 
+	uuid "github.com/satori/go.uuid"
+
 	"github.com/followgo/myadmin/module/orm"
 )
 
 // Setting 网站设置
 type Setting struct {
-	Name    string    `xorm:"varchar(36) pk" json:"name"`
+	UUID    string    `xorm:"varchar(36) pk 'uuid'" json:"uuid"`
+	Name    string    `xorm:"varchar(32) unique" json:"name"`
 	Value   string    `xorm:"varchar(255)" json:"value"`
 	Version uint      `xorm:"version" json:"version"`
 	Created time.Time `xorm:"created" json:"created"`
@@ -30,6 +33,7 @@ func (s *Setting) Count(filter *orm.Filter) (n int64, err error) {
 
 // Insert 插入一条记录
 func (s *Setting) Insert() (ok bool, err error) {
+	s.UUID = uuid.NewV1().String()
 	n, err := orm.NewSession(nil).InsertOne(s)
 	return n != 0, err
 }
@@ -37,9 +41,9 @@ func (s *Setting) Insert() (ok bool, err error) {
 // Update 更新记录
 func (s *Setting) Update() (n int64, err error) {
 	n, err = orm.NewSession(&orm.Filter{
-		Cols:      []string{"content_raw"},
-		Query:     "name=?",
-		QueryArgs: []interface{}{s.Name},
+		Cols:      []string{"name", "value"},
+		Query:     "uuid=?",
+		QueryArgs: []interface{}{s.UUID},
 	}).Update(s)
 
 	return n, err
@@ -47,6 +51,6 @@ func (s *Setting) Update() (n int64, err error) {
 
 // Del 根据uuid删除一条记录
 func (s *Setting) Del() (ok bool, err error) {
-	n, err := orm.NewSession(&orm.Filter{Query: "name=?", QueryArgs: []interface{}{s.Name}}).Delete(new(Setting))
+	n, err := orm.NewSession(&orm.Filter{Query: "uuid=?", QueryArgs: []interface{}{s.UUID}}).Delete(new(Setting))
 	return n != 0, err
 }

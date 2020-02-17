@@ -45,7 +45,7 @@ func (api *CompanyNewsAPI) Select(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"total": total, "articles": news})
+	return c.JSON(http.StatusOK, echo.Map{"total": total, "news": news})
 }
 
 // Create 创建一个新对象
@@ -63,7 +63,7 @@ func (api *CompanyNewsAPI) Create(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "插入数据失败"}
 	}
 
-	return c.JSON(http.StatusOK, news)
+	return c.JSON(http.StatusCreated, news)
 }
 
 // Update 完全更新一个对象
@@ -82,7 +82,7 @@ func (api *CompanyNewsAPI) Update(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	return c.JSON(http.StatusOK, news)
+	return c.JSON(http.StatusCreated, news)
 }
 
 // Patch 修改一个对象的属性
@@ -106,7 +106,7 @@ func (api *CompanyNewsAPI) Patch(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	return c.JSON(http.StatusOK, news)
+	return c.JSON(http.StatusCreated, news)
 }
 
 // Delete 删除一个对象

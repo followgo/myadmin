@@ -63,7 +63,7 @@ func (api *ArticleAPI) Create(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "插入数据失败"}
 	}
 
-	return c.JSON(http.StatusOK, article)
+	return c.JSON(http.StatusCreated, article)
 }
 
 // Update 完全更新一个对象
@@ -82,7 +82,7 @@ func (api *ArticleAPI) Update(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	return c.JSON(http.StatusOK, article)
+	return c.JSON(http.StatusCreated, article)
 }
 
 // Patch 修改一个对象的属性
@@ -106,7 +106,7 @@ func (api *ArticleAPI) Patch(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	return c.JSON(http.StatusOK, article)
+	return c.JSON(http.StatusCreated, article)
 }
 
 // Delete 删除一个对象

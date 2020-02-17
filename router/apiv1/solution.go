@@ -10,13 +10,13 @@ import (
 	"github.com/followgo/myadmin/module/orm"
 )
 
-// BannerAPI 网页横幅API
-type BannerAPI struct{}
+// SolutionAPI 解决方案API
+type SolutionAPI struct{}
 
 // Get 根据 `uuid` 获取指定的对象
-func (api *BannerAPI) Get(c echo.Context) error {
-	banner := &model.Banner{UUID: c.Param("uuid")}
-	has, err := banner.Get()
+func (api *SolutionAPI) Get(c echo.Context) error {
+	solution := &model.Solution{UUID: c.Param("uuid")}
+	has, err := solution.Get()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
@@ -24,38 +24,38 @@ func (api *BannerAPI) Get(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusNotFound, Message: "没有此数据"}
 	}
 
-	return c.JSON(http.StatusOK, banner)
+	return c.JSON(http.StatusOK, solution)
 }
 
 // Select 列出所有选择的对象
-func (api *BannerAPI) Select(c echo.Context) error {
+func (api *SolutionAPI) Select(c echo.Context) error {
 	filter := new(orm.Filter)
 	if err := c.Bind(filter); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
 
-	banners, err := new(model.Banner).Find(filter)
+	solutions, err := new(model.Solution).Find(filter)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
 
 	// 数量
-	total, err := new(model.Banner).Count(filter)
+	total, err := new(model.Solution).Count(filter)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "读取数据出错", Internal: err}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"total": total, "banners": banners})
+	return c.JSON(http.StatusOK, echo.Map{"total": total, "solutions": solutions})
 }
 
 // Create 创建一个新对象
-func (api *BannerAPI) Create(c echo.Context) error {
-	banner := &model.Banner{}
-	if err := c.Bind(banner); err != nil {
+func (api *SolutionAPI) Create(c echo.Context) error {
+	solution := &model.Solution{}
+	if err := c.Bind(solution); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
 
-	ok, err := banner.Insert()
+	ok, err := solution.Insert()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "插入数据出错", Internal: err}
 	}
@@ -63,18 +63,18 @@ func (api *BannerAPI) Create(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "插入数据失败"}
 	}
 
-	return c.JSON(http.StatusCreated, banner)
+	return c.JSON(http.StatusCreated, solution)
 }
 
 // Update 完全更新一个对象
-func (api *BannerAPI) Update(c echo.Context) error {
-	banner := &model.Banner{}
-	if err := c.Bind(banner); err != nil {
+func (api *SolutionAPI) Update(c echo.Context) error {
+	solution := &model.Solution{}
+	if err := c.Bind(solution); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
-	banner.UUID = c.Param("uuid")
+	solution.UUID = c.Param("uuid")
 
-	n, err := banner.Update(nil, nil)
+	n, err := solution.Update(nil, nil)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据出错", Internal: err}
 	}
@@ -82,23 +82,23 @@ func (api *BannerAPI) Update(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	return c.JSON(http.StatusCreated, banner)
+	return c.JSON(http.StatusCreated, solution)
 }
 
 // Patch 修改一个对象的属性
-func (api *BannerAPI) Patch(c echo.Context) error {
-	banner := &model.Banner{}
-	if err := c.Bind(banner); err != nil {
+func (api *SolutionAPI) Patch(c echo.Context) error {
+	solution := &model.Solution{}
+	if err := c.Bind(solution); err != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "参数错误", Internal: err}
 	}
-	banner.UUID = c.Param("uuid")
+	solution.UUID = c.Param("uuid")
 
 	cols := strings.Split(c.QueryParam("cols"), ",")
 	if len(cols) == 0 {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "缺少必要的参数"}
 	}
 
-	n, err := banner.Update(cols, nil)
+	n, err := solution.Update(cols, nil)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据出错", Internal: err}
 	}
@@ -106,13 +106,13 @@ func (api *BannerAPI) Patch(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "更新数据失败"}
 	}
 
-	return c.JSON(http.StatusCreated, banner)
+	return c.JSON(http.StatusCreated, solution)
 }
 
 // Delete 删除一个对象
-func (api *BannerAPI) Delete(c echo.Context) error {
-	banner := &model.Banner{UUID: c.Param("uuid")}
-	ok, err := banner.Del()
+func (api *SolutionAPI) Delete(c echo.Context) error {
+	solution := &model.Solution{UUID: c.Param("uuid")}
+	ok, err := solution.Del()
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "删除数据出错", Internal: err}
 	}

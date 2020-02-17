@@ -60,7 +60,7 @@ func (api *LoginAPI) LoginByLocal(c echo.Context) error {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: "创建Token发生错误", Internal: err}
 	}
 
-	return c.JSON(http.StatusOK, echo.Map{"token": token, "uuid": user.UUID})
+	return c.JSON(http.StatusCreated, echo.Map{"token": token, "uuid": user.UUID})
 }
 
 // Logout 登出系统
