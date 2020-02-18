@@ -29,6 +29,11 @@ func startHTTPServer() {
 	// 注册URL路由=>API
 	router.RegisterAPIv1(e)
 
+	// 注册静态文件
+	e.Static("/static", "./view/dist/static")
+	e.File("/", "./view/dist/index.html")
+	e.File("/favicon.ico", "./view/dist/favicon.ico")
+
 	// 启动服务
 	go func() {
 		logrus.Infoln("HTTP服务启动...")

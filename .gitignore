@@ -21,3 +21,7 @@ config/config.toml
 .idea/dataSources.local.xml
 .idea/dataSources.xml
 upload/
+view/package-lock.json
+view/node_modules/
+view/.vscode/
+view/dist/
