@@ -42,6 +42,23 @@ var Cfg = &config{
 		AllowMaxSizeMB:       10,
 		ConvertPictureToWebp: true,
 	},
+	LDAP: ldapConfig{
+		Enabled:                false,
+		Protocol:               "tcp",
+		UseTLS:                 true,
+		ServerAddr:             "ldap.example.org:636",
+		BindSearcherDN:         "cn=Manager,ou=ITSection,dc=example,dc=org",
+		BindSearcherDNPassword: "123456",
+		SearchBaseDN:           "ou=ITSection,dc=example,dc=org",
+		SearchFilter:           "(&(objectClass=organizationalPerson))",
+		RDNAttr:                "cn",
+		UserAttributes: ldapUserAttributes{
+			CommonName:  "cn",
+			Surname:     "sn",
+			Telephone:   "telephoneNumber",
+			Description: "description",
+		},
+	},
 }
 
 // config 主配置
@@ -60,6 +77,9 @@ type config struct {
 
 	// Upload 上传设置
 	Upload uploadConfig
+
+	// ldap LDAP认证的设置
+	LDAP ldapConfig `json:"ldap"`
 }
 
 // httpConfig HTTP 配置
@@ -123,4 +143,40 @@ type uploadConfig struct {
 
 	// ConvertPictureToWebp 转换图片格式为webp格式
 	ConvertPictureToWebp bool
+}
+
+// ldapConfig LDAP登陆设置
+type ldapConfig struct {
+	// Enabled 使能 LDAP 认证功能
+	Enabled bool
+
+	// Protocol 使用协议，TCP 或 UDP
+	Protocol string
+
+	// UseTLS 使用 LDAP with SSL/TLS
+	UseTLS bool
+
+	// 服务器地址
+	ServerAddr string
+
+	// SearchDN 绑定用于查询的用户
+	BindSearcherDN         string
+	BindSearcherDNPassword string
+
+	// SearchFilter 查询范围和匹配过滤
+	SearchBaseDN string
+	SearchFilter string
+
+	// RDNAttr RDN(Relative Distinguished Name)对应的属性名称，通常是 `cn` 或者 `uid`
+	RDNAttr string
+	// Attributes 用户的属性字段名称
+	UserAttributes ldapUserAttributes
+}
+
+// ldapUserAttributes LDAP 用户的属性字段名称
+type ldapUserAttributes struct {
+	CommonName  string // 名，person对象的必须要属性 cn
+	Surname     string // 姓，person对象的必须要属性 sn
+	Telephone   string // 电话，person对象的可选属性 telephoneNumber
+	Description string // 描述，person对象的可选属性 description
 }
