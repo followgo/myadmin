@@ -1,4 +1,13 @@
 package ldapclient
 
-// ErrNoFound 没有找到任何用户
-var ErrNoFound = errors.New("no users found")
+import (
+	"github.com/followgo/myadmin/util/errors"
+)
+
+var (
+	// ErrNoFound 没有找到任何用户
+	ErrNoFound = errors.New("no users found")
+
+	// ErrUserAuth 用户认证失败
+	ErrUserAuth = errors.New("user authentication failed")
+)
