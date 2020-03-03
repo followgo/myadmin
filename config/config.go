@@ -46,10 +46,11 @@ var Cfg = &config{
 		Enabled:                false,
 		Protocol:               "tcp",
 		UseTLS:                 true,
+		StartTLS:               true,
 		ServerAddr:             "ldap.example.org:636",
-		BindSearcherDN:         "cn=Manager,ou=ITSection,dc=example,dc=org",
+		BindSearcherDN:         "cn=Searcher,ou=IT,dc=example,dc=org",
 		BindSearcherDNPassword: "123456",
-		SearchBaseDN:           "ou=ITSection,dc=example,dc=org",
+		SearchBaseDN:           "ou=IT,dc=example,dc=org",
 		SearchFilter:           "(&(objectClass=organizationalPerson))",
 		RDNAttr:                "cn",
 		UserAttributes: ldapUserAttributes{
@@ -154,7 +155,8 @@ type ldapConfig struct {
 	Protocol string
 
 	// UseTLS 使用 LDAP with SSL/TLS
-	UseTLS bool
+	UseTLS   bool
+	StartTLS bool
 
 	// 服务器地址
 	ServerAddr string

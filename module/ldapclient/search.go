@@ -1,7 +1,6 @@
 package ldapclient
 
 import (
-	"crypto/tls"
 	"fmt"
 	"strings"
 
@@ -12,40 +11,26 @@ import (
 	"github.com/followgo/myadmin/util/errors"
 )
 
-// Search 从服务器搜索用户信息
-// 不指定 RDN 则返回所有成员
+// search 从服务器搜索用户信息，指定 RDN 搜索过程中还会匹配 RDN 对应的属性
 func Search(rdn string) (users []map[string]string, err error) {
-	var l *ldap.Conn
+	conn, err := dial()
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+
 	filter := Cfg.LDAP.SearchFilter
 	if rdn != "" {
 		filter = filter[:len(filter)-1] + fmt.Sprintf("(%s=%s)", Cfg.LDAP.RDNAttr, rdn) + ")"
 	}
+	return search(conn, Cfg.LDAP.SearchBaseDN, filter)
+}
 
-	// 连接服务器
-	if Cfg.LDAP.UseTLS {
-		l, err = ldap.DialTLS("tcp", Cfg.LDAP.ServerAddr, &tls.Config{InsecureSkipVerify: true})
-		if err != nil {
-			return nil, errors.Wrap(err, "dial with tls failed")
-		}
-		defer l.Close()
-	} else {
-		l, err = ldap.Dial("tcp", Cfg.LDAP.ServerAddr)
-		if err != nil {
-			return nil, errors.Wrap(err, "dial without tls failed")
-		}
-		defer l.Close()
-
-		// Reconnect with TLS
-		err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
-		if err != nil {
-			return nil, errors.Wrap(err, "reconnect with TLS")
-		}
-	}
-
+func search(conn *ldap.Conn, baseDN, filter string) (users []map[string]string, err error) {
 	// First bind with a read only user
-	err = l.Bind(Cfg.LDAP.BindSearcherDN, Cfg.LDAP.BindSearcherDNPassword)
+	err = conn.Bind(Cfg.LDAP.BindSearcherDN, Cfg.LDAP.BindSearcherDNPassword)
 	if err != nil {
-		return nil, errors.Wrap(err, "bind user failed")
+		return nil, errors.Wrap(err, "bind searcherDN failed")
 	}
 
 	// Search for the given infos of users
@@ -59,26 +44,27 @@ func Search(rdn string) (users []map[string]string, err error) {
 		attrs = append(attrs, Cfg.LDAP.RDNAttr)
 	}
 	searchRequest := ldap.NewSearchRequest(
-		Cfg.LDAP.SearchBaseDN,
-		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+		baseDN,
+		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 10, false,
 		filter, attrs, nil,
 	)
-	result, err := l.Search(searchRequest)
+	result, err := conn.Search(searchRequest)
 	if err != nil {
 		return nil, errors.Wrap(err, "search failed")
 	}
 
-	// 读取结果
+	// 读取结果，并返回
 	if len(result.Entries) == 0 {
 		return nil, ErrNoFound
 	}
 	users = make([]map[string]string, 0, len(result.Entries))
 	for _, e := range result.Entries {
 		user := make(map[string]string)
-		user["DN"] = e.DN
+		user["dn"] = e.DN
 		for _, attr := range attrs {
 			user[attr] = strings.Join(e.GetAttributeValues(attr), ",")
 		}
+
 		users = append(users, user)
 	}
 
