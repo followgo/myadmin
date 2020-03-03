@@ -6,45 +6,46 @@ import (
 	"github.com/followgo/myadmin/router/apiv1"
 )
 
+// RegisterAPIv1 注册 API 到指定的 URL
 func RegisterAPIv1(e *echo.Echo) {
-	v1 := e.Group("/api/v1")
+	g := e.Group("/api/v1")
 
 	// 测试
-	v1.GET("/helloworld", apiv1.HelloWorld)
+	g.GET("/helloworld", apiv1.HelloWorld)
 
 	// 不需要登陆
-	v1.POST("/login", new(apiv1.LoginAPI).LoginByLocal)
-	v1.POST("/ldap/login", new(apiv1.LoginAPI).LoginByLDAP)
-	v1.GET("/images/:uuid", new(apiv1.FileAPI).GetImage)
+	g.POST("/login", new(apiv1.LoginAPI).LoginByLocal)
+	g.POST("/ldap/login", new(apiv1.LoginAPI).LoginByLDAP)
+	g.GET("/images/:uuid", new(apiv1.FileAPI).GetImage)
 
 	// 需要 token 才能访问
-	// mw.UsePermission(v1)
+	// mw.UsePermission(g)
 
 	// 其它
-	v1.POST("/logout", new(apiv1.LoginAPI).Logout)
-	v1.POST("/refresh_token", new(apiv1.LoginAPI).RefreshToken)
-	registerAPI(v1, "/admins", new(apiv1.AdminAPI), nil, nil)
-	registerAPI(v1, "/files", new(apiv1.FileAPI), nil, nil)
-	registerAPI(v1, "/company/news", new(apiv1.CompanyNewsAPI), nil, nil)
-	registerAPI(v1, "/banners", new(apiv1.BannerAPI), nil, nil)
+	g.POST("/logout", new(apiv1.LoginAPI).Logout)
+	g.POST("/refresh_token", new(apiv1.LoginAPI).RefreshToken)
+	registerAPI(g, "/admins", new(apiv1.AdminAPI), nil, nil)
+	registerAPI(g, "/files", new(apiv1.FileAPI), nil, nil)
+	registerAPI(g, "/company/news", new(apiv1.CompanyNewsAPI), nil, nil)
+	registerAPI(g, "/banners", new(apiv1.BannerAPI), nil, nil)
 
 	// 部件和设置
-	registerAPI(v1, "/settings", new(apiv1.SettingAPI), nil, nil)
-	registerAPI(v1, "/parts", new(apiv1.PartAPI), nil, nil)
+	registerAPI(g, "/settings", new(apiv1.SettingAPI), nil, nil)
+	registerAPI(g, "/parts", new(apiv1.PartAPI), nil, nil)
 
 	// 文章
-	registerAPI(v1, "/article/categories", new(apiv1.ArticleCategAPI), nil, nil)
-	registerAPI(v1, "/articles", new(apiv1.ArticleAPI), nil, nil)
+	registerAPI(g, "/article/categories", new(apiv1.ArticleCategAPI), nil, nil)
+	registerAPI(g, "/articles", new(apiv1.ArticleAPI), nil, nil)
 
 	// 解决方案和典型案例
-	registerAPI(v1, "/market/segments", new(apiv1.MarketSegmentAPI), nil, nil)
-	registerAPI(v1, "/solutions", new(apiv1.SolutionAPI), nil, nil)
-	registerAPI(v1, "/typical_cases", new(apiv1.TypicalCaseAPI), nil, nil)
+	registerAPI(g, "/market/segments", new(apiv1.MarketSegmentAPI), nil, nil)
+	registerAPI(g, "/solutions", new(apiv1.SolutionAPI), nil, nil)
+	registerAPI(g, "/typical_cases", new(apiv1.TypicalCaseAPI), nil, nil)
 
 	// 产品
-	registerAPI(v1, "/product/categories", new(apiv1.ProductCategAPI), nil, nil)
-	registerAPI(v1, "/product/categ/relations", new(apiv1.ProductImageRelationAPI), nil, nil)
-	registerAPI(v1, "/product/image/relations", new(apiv1.ProductImageRelationAPI), nil, nil)
-	registerAPI(v1, "/product/detail_parts", new(apiv1.ProductDetailPartAPI), nil, nil)
-	registerAPI(v1, "/products", new(apiv1.ProductAPI), nil, nil)
+	registerAPI(g, "/product/categories", new(apiv1.ProductCategAPI), nil, nil)
+	registerAPI(g, "/product/categ/relations", new(apiv1.ProductImageRelationAPI), nil, nil)
+	registerAPI(g, "/product/image/relations", new(apiv1.ProductImageRelationAPI), nil, nil)
+	registerAPI(g, "/product/detail_parts", new(apiv1.ProductDetailPartAPI), nil, nil)
+	registerAPI(g, "/products", new(apiv1.ProductAPI), nil, nil)
 }

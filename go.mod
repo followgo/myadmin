@@ -21,6 +21,7 @@ require (
 	github.com/labstack/echo/v4 v4.1.13
 	github.com/labstack/gommon v0.3.0
 	github.com/mattn/go-sqlite3 v2.0.2+incompatible
+	github.com/mojocn/base64Captcha v1.3.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/satori/go.uuid v1.2.0
@@ -30,6 +31,7 @@ require (
 	github.com/xormplus/core v0.0.0-20190724072625-00f5a85ad6e0
 	github.com/xormplus/xorm v0.0.0-20190926190243-42377f593eb1
 	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876
+	golang.org/x/image v0.0.0-20200119044424-58c23975cae1 // indirect
 	golang.org/x/sys v0.0.0-20200121082415-34d275377bf9 // indirect
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/flosch/pongo2.v3 v3.0.0-20141028000813-5e81b817a0c4 // indirect

@@ -28,6 +28,7 @@ func startHTTPServer() {
 
 	// 注册URL路由=>API
 	router.RegisterAPIv1(e)
+	router.RegisterCaptchaAPIv1(e)
 
 	// 注册静态文件
 	e.Static("/static", "./view/dist/static")
