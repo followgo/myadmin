@@ -14,12 +14,12 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.4.7 // indirect
-	github.com/go-ldap/ldap v3.0.3+incompatible
-	github.com/jinzhu/inflection v1.0.0
+	github.com/go-ldap/ldap v3.0.3+incompatible // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
-	github.com/labstack/echo v3.3.10+incompatible
+	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/echo/v4 v4.1.13
-	github.com/labstack/gommon v0.3.0
+	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/mattn/go-sqlite3 v2.0.2+incompatible
 	github.com/mojocn/base64Captcha v1.3.0
 	github.com/natefinch/lumberjack v2.0.0+incompatible

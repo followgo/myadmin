@@ -25,7 +25,7 @@ type FileAPI struct{}
 // Create 上传文件
 func (api *FileAPI) Create(c echo.Context) error {
 	file, err := c.FormFile("file")
-	if err != nil {
+	if err != nil || file == nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Internal: err}
 	}
 
